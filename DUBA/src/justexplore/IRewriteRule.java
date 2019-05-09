@@ -13,7 +13,7 @@ public interface IRewriteRule {
   void rewrite(State state);
 
   // Apply this rule to the given stack
-  Stack<Integer> rewriteStack(Stack<Integer> stack);
+  void rewriteStack(Stack<Integer> stack);
 
   // Apply this rule to the given global state
   int rewriteGlobal(int oldGlobal);

@@ -16,8 +16,7 @@ public class Task implements ITask {
 
   // Apply the first applicable rule, if any, to this Task's internal state
   // EFFECT: modifies this.currState
-  public int step(int currGlobal) {
-    this.currState.updateGlobal(currGlobal);
+  public int step() {
     for (IRewriteRule rule : rules) {
       if (rule.canRewrite(this.currState)) {
         rule.rewrite(this.currState);
@@ -32,5 +31,14 @@ public class Task implements ITask {
     return this.rules
         .stream()
         .allMatch(rule -> !rule.canRewrite(this.currState));
+  }
+
+  public void updateGlobal(int currGlobal) {
+    this.currState.updateGlobal(currGlobal);
+  }
+
+  @Override
+  public String toString() {
+    return this.name + ": " + this.currState.toString();
   }
 }

@@ -5,11 +5,15 @@ import java.util.Stack;
 // A state of the global variable and the local stack for a task
 public class State {
   private int global;
-  private Stack<Integer> locals;
+  private final Stack<Integer> locals;
 
   State(int global) {
+    this(global, new Stack<Integer>());
+  }
+
+  State(int global, Stack<Integer> locals) {
     this.global = global;
-    this.locals = new Stack<Integer>();
+    this.locals = locals;
   }
   // Is this state's global and top of stack equivalent to the given one?
   boolean topEquivalent(State that) {
@@ -35,6 +39,16 @@ public class State {
   // EFFECT: modifies this
   void rewriteWith(IRewriteRule rule) {
     this.global = rule.rewriteGlobal(this.global);
-    this.locals = rule.rewriteStack(this.locals);
+    rule.rewriteStack(this.locals);
+  }
+
+  // If this stack full?
+  public boolean metBound() {
+    return this.locals.size() >= ITask.stackBound;
+  }
+
+  @Override
+  public String toString() {
+    return "< " + this.global + " | " + this.locals.toString() + " >";
   }
 }
