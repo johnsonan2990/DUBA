@@ -49,16 +49,6 @@ public class Main {
     List<ITask> tasks = setupTasks();
     ReachabilityExplore explorer = new ReachabilityExplore(setupInit(tasks), tasks,
         new RoundRobin());
-    System.out.println(explorer.run(5).toString());
+    System.out.println(explorer.run().toString());
   }
-
-  private static void testCloneMap() {
-    Map<String, Stack<Integer>> m = new HashMap<>();
-    Stack<Integer> hiStack = new Stack<>();
-    hiStack.push(1);
-    hiStack.push(2);
-    hiStack.push(3);
-    m.put("Hello", hiStack);
-  }
-
 }

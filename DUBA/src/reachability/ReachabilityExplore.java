@@ -25,13 +25,30 @@ public class ReachabilityExplore {
   }
 
 
-  // Pick the next task and run it until no more states can be reached. Then,
-  // update the reached set.
+  // Run the exploration for a given number of rounds
   public Set<State> run(int rounds) {
     for (int i = 0; i < rounds * this.tasks.size(); i += 1) {
       this.step();
     }
     return this.reached;
+  }
+
+  // Pick the next task and run it until no more states can be reached. Then,
+  // update the reached set.
+  public Set<State> run() {
+    while (!this.complete()) {
+      this.step();
+    }
+    return this.reached;
+  }
+
+  // Has this explorer found all the possible states?
+  private boolean complete() {
+    boolean ans = true;
+    for (ITask t : this.reachedLast.keySet()) {
+      ans = ans && setDiff(this.reached, this.reachedLast.get(t)).isEmpty();
+    }
+    return ans;
   }
 
   private void step() {
@@ -40,6 +57,7 @@ public class ReachabilityExplore {
     this.reachedLast.get(next).addAll(this.reached);
   }
 
+  // Return a new set with all of the elements in set 1 but not in set 2
   public static <T> Set<T> setDiff(Set<T> set1, Set<T> set2) {
     Set<T> ans = new HashSet<>();
     ans.addAll(set1);

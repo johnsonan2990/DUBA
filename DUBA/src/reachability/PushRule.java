@@ -14,6 +14,11 @@ public class PushRule extends ARewriteRule {
   }
 
   @Override
+  public boolean canRewrite(int global, Stack<Integer> local) {
+    return !(local.size() >= IRewriteRule.stackBound) && super.canRewrite(global, local);
+  }
+
+  @Override
   public State rewrite(Map<ITask, Stack<Integer>> stacks, ITask task) {
     // Need to copy states to avoid mutating them.
     Map<ITask, Stack<Integer>> nextMap = cloneMap(stacks);
