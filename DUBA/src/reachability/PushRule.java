@@ -3,6 +3,13 @@ package reachability;
 import java.util.Map;
 import java.util.Stack;
 
+/**
+ * A rule to overwrite the global state, the top of the local stack, and push a
+ * new element onto the stack.
+ * 
+ * @author Andrew
+ *
+ */
 public class PushRule extends ARewriteRule {
   private final int topTo;
   private final int toPush;
@@ -24,8 +31,8 @@ public class PushRule extends ARewriteRule {
     Map<ITask, Stack<Integer>> nextMap = cloneMap(stacks);
     Stack<Integer> toRewrite = nextMap.get(task);
     toRewrite.pop();
-    toRewrite.push(this.toPush);
     toRewrite.push(this.topTo);
+    toRewrite.push(this.toPush);
     return new State(this.globalTo, nextMap);
   }
 

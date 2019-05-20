@@ -2,9 +2,19 @@ package reachability;
 
 import java.util.List;
 
-// A scheduler to provide an ordering of tasks
+/**
+ * A scheduler that will pick the next task to use given a list of tasks
+ * 
+ * @author Andrew
+ *
+ */
 public interface IScheduler {
 
-  // Returns the next task to be run
+  /**
+   * Picks a task from the given list to be the next one to run.
+   * 
+   * @param tasks
+   * @return The next task to run.
+   */
   ITask pickTask(List<ITask> tasks);
 }

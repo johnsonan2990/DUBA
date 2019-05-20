@@ -3,6 +3,12 @@ package reachability;
 import java.util.Map;
 import java.util.Stack;
 
+/**
+ * A rule to overwrite the global state and the top of the local stack.
+ * 
+ * @author Andrew
+ *
+ */
 public class OverwriteRule extends ARewriteRule {
   private final int topTo;
 
@@ -20,6 +26,5 @@ public class OverwriteRule extends ARewriteRule {
     toRewrite.push(this.topTo);
     return new State(this.globalTo, nextMap);
   }
-
 
 }

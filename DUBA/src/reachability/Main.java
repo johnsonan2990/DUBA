@@ -25,22 +25,20 @@ public class Main {
     IRewriteRule r2 = new OverwriteRule(3, 2, 0, 1);
     IRewriteRule r3 = new PopRule(0, 4, 0);
     IRewriteRule r4 = new OverwriteRule(1, 4, 2, 5);
-    IRewriteRule r5 = new PushRule(2, 5, 3, 4, 6);
+    IRewriteRule r5 = new PushRule(2, 5, 3, 6, 4);
 
     Stack<Integer> s = new Stack<>();
     s.push(2);
-    ITask t1 = new Task(Arrays.asList(r1, r2));
-    ITask t2 = new Task(Arrays.asList(r3, r4, r5));
+    ITask t1 = new Task(Arrays.asList(r1, r2), 1);
+    ITask t2 = new Task(Arrays.asList(r3, r4, r5), 4);
 
     return Arrays.asList(t1, t2);
   }
 
   public static State setupInit(List<ITask> tasks) {
     Map<ITask, Stack<Integer>> initStacks = new HashMap<>();
-    initStacks.put(tasks.get(0), new Stack<>());
-    initStacks.put(tasks.get(1), new Stack<>());
-    initStacks.get(tasks.get(0)).push(1);
-    initStacks.get(tasks.get(1)).push(4);
+    initStacks.put(tasks.get(0), tasks.get(0).initStack());
+    initStacks.put(tasks.get(1), tasks.get(1).initStack());
     
     return new State(0, initStacks);
   }

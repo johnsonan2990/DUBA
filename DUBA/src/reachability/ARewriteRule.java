@@ -22,8 +22,8 @@ public abstract class ARewriteRule implements IRewriteRule {
         && this.topFrom == local.peek().intValue();
   }
   
-  @SuppressWarnings("unchecked")
-  public static <T1, T2> Map<T1, Stack<T2>> cloneMap(Map<T1, Stack<T2>> map) {
+
+  protected static <T1, T2> Map<T1, Stack<T2>> cloneMap(Map<T1, Stack<T2>> map) {
     Map<T1, Stack<T2>> nextMap = new HashMap<>();
     for (T1 t : map.keySet()) {
       Stack<T2> nextStack = new Stack<>();
