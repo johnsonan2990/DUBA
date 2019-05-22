@@ -13,7 +13,7 @@ import java.util.Set;
  *
  */
 public class ReachabilityExplore {
-  private final Set<State> nextExplore;
+  // private final Set<State> nextExplore;
   private final Set<State> reached;
   private final List<ITask> tasks;
   private final IScheduler sched;
@@ -27,8 +27,8 @@ public class ReachabilityExplore {
    * @param sched   The scheduler to use.
    */
   ReachabilityExplore(State initial, List<ITask> tasks, IScheduler sched) {
-    this.nextExplore = new HashSet<>();
-    this.nextExplore.add(initial);
+//    this.nextExplore = new HashSet<>();
+//    this.nextExplore.add(initial);
     this.reached = new HashSet<>();
     this.reached.add(initial);
     this.tasks = tasks;
@@ -73,30 +73,30 @@ public class ReachabilityExplore {
    * @param toRun The task to be run.
    */
   private void runProcedure(ITask toRun) {
-    Set<State> unexplored = new HashSet<>();
-    unexplored.addAll(this.nextExplore);
-    this.nextExplore.clear();
-    int numTasks = this.tasks.size();
+    Set<State> unexplored = setDiff(this.reached, this.reachedLast.get(toRun));
+//    unexplored.addAll(this.nextExplore);
+//    this.nextExplore.clear();
+//    int numTasks = this.tasks.size();
 
     while (!unexplored.isEmpty()) {
       Set<State> nextUnexplored = new HashSet<>();
       for (State s : unexplored) {
         Set<State> successors = toRun.getSuccessors(s);
-        if (successors.isEmpty()) {
-          this.nextExplore.add(s);
-        }
+//        if (successors.isEmpty()) {
+//          this.nextExplore.add(s);
+//        }
         for (State successor : successors) {
           if (!reached.contains(successor)) {
             reached.add(successor);
             nextUnexplored.add(successor);
           }
-          if (successor.tasksInState().size() > numTasks) {
-            for (ITask t : successor.tasksInState()) {
-              if (!this.tasks.contains(t)) {
-                this.tasks.add(t);
-              }
-            }
-          }
+//          if (successor.tasksInState().size() > numTasks) {
+//            for (ITask t : successor.tasksInState()) {
+//              if (!this.tasks.contains(t)) {
+//                this.tasks.add(t);
+//              }
+//            }
+//          }
         }
       }
       unexplored.clear();
