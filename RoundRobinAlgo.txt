@@ -1,33 +1,35 @@
 RR_Run(int timeSlice, List<Machine> machines, State initial, int rounds, Scheduler sched)
 Inputs:
-timeSlice- number of steps given to each machine for a stage
-machines- the machines to run
-initial- the initial state
-rounds- the number of times each machine is given a slice.
-scheduler- used to pick the next machine
+  timeSlice- number of steps given to each machine for one context
+  machines- the machines to run
+  initial- the initial state (= the initial shared state, plus initial stack of each machine)
+  rounds- the number of times each machine is given a slice
+  scheduler- used to pick the next machine within a round
 
-Output: The set of reachable states with the given parameters.
+Output:
+  The set of reachable states with the given parameters.
 
-Fields:
-reached := {initial} //set of reached states;
-currFrontier:= {initial} //The next beginning set to explore from
-for (int s = 0; s < rounds * machines.length(); s++): // Pick a new machine this many times
-     machine curr := sched.pick(machines) // Pick a new machine for this stage.
+  reached := {initial} //set of reached states;
+  currFrontier:= {initial} //The next beginning set to explore from
+  for (int s = 0; s < rounds * machines.length(); s++): // Pick a new machine this many times
+     machine curr := sched.pick(machines) // Pick a new machine
      for (int dist = 0; dist < timeSlice; dist++): // take this many steps with the current machine.
-          step(curr, currFrontier, reached)
-return reached.
+       RR_step(curr, currFrontier, reached)
+  return reached.
+
 ---------
+
 RR_step (machine curr, Set currFrontier, Set reached):
 inputs: The machine to run, the set to take one step from, the total set of reached (for reference)
-Effect: updates currFrontier to the set of states that are either:
-in currFrontier and have no successors, or
-one step from a state in currFrontier
+Effect: updates currFrontier by adding states either:
+          have been reached in the current context and have no successors, or
+          one step from a state in currFrontier
 Effect: Updates reached with all states seen
 
 Set nextFrontier := {}
 for each state s in currFrontier do:
      successors := curr.getSuccessors(s)
-     add all in next to reached // Always add everything seen
+     add all in successors to reached // Always add everything seen
      if successors is empty: // no successors
           add s to nextFrontier // Found a dead end state; it needs to stay for the next machine 
      else: // has successors
@@ -39,19 +41,20 @@ currFrontier.addAll(nextFrontier)
 
 Machine
 A Machine has a list of rules and one function:
-Machine_getSuccessors(State s) input: a global state; output: a set of states that are successors using this machine
-     Set ans := {}
-     for each rule r in this machine do:
-          if r can rewrite s:
-                 add s', s rewritten by r, to ans.
-     return ans.
+Machine_getSuccessors(State s)
+input: a global state
+output: a set of states that are successors using this machine
+Set ans := {}
+for each rule r in this machine do:
+  if r is enabled in s
+    add s' (result of firing r on s) to ans.
+return ans.
 
 A scheduler has one function that picks the next machine to run.
 Sample scheduler:
 RR_Fair (just cycles through the machine from the first in the list):
 int counter := 0
 pick(List<machine> machines) -> machine:
-     counter = counter % length(machines) //ensure we are picking a machine in the list
-     machine ans := machines[counter]
-     counter++
-     return ans;
+  ans := machines[counter]
+  counter := (counter + 1) % length(machines)
+  return ans;
