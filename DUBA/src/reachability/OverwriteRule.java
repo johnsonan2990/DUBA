@@ -18,9 +18,9 @@ public class OverwriteRule extends ARewriteRule {
   }
 
   @Override
-  public State rewrite(Map<ITask, Stack<Integer>> stacks, ITask task) {
+  public State rewrite(Map<IMachine, Stack<Integer>> stacks, IMachine task) {
     // Need to copy states to avoid mutating them.
-    Map<ITask, Stack<Integer>> nextMap = cloneMap(stacks);
+    Map<IMachine, Stack<Integer>> nextMap = cloneMap(stacks);
     Stack<Integer> toRewrite = nextMap.get(task);
     toRewrite.pop();
     toRewrite.push(this.topTo);

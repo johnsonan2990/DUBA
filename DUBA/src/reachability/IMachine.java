@@ -4,15 +4,15 @@ import java.util.Set;
 import java.util.Stack;
 
 /**
- * A Task (concurrent pushdown system) in a reachability explorer.
+ * A Machine (concurrent pushdown system) in a reachability explorer.
  * 
  * @author Andrew
  *
  */
-public interface ITask {
+public interface IMachine {
   /**
-   * Returns all of the possible successors to the given state using this task's
-   * rewrite rules
+   * Returns all of the possible successors to the given state using this
+   * machine's rewrite rules
    * 
    * @param state the state to find the successors of
    * @return The set of all successor states to the given one using this machine's
@@ -21,9 +21,9 @@ public interface ITask {
   Set<State> getSuccessors(State state);
 
   /**
-   * The initial stack for this task
+   * The initial stack for this machine
    * 
-   * @return The initial stack for this task.
+   * @return The initial stack for this machine.
    */
   Stack<Integer> initStack();
 

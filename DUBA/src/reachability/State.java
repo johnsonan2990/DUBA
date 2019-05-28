@@ -8,9 +8,9 @@ import java.util.Stack;
 
 public class State {
   private final int global;
-  private final Map<ITask, Stack<Integer>> stacks;
+  private final Map<IMachine, Stack<Integer>> stacks;
 
-  public State(int global, Map<ITask, Stack<Integer>> stacks) {
+  public State(int global, Map<IMachine, Stack<Integer>> stacks) {
     this.global = global;
     this.stacks = stacks;
   }
@@ -18,12 +18,12 @@ public class State {
   /**
    * Returns the set of successor states to this state using the given rules.
    * 
-   * @param toRun The current task.
+   * @param toRun The current machine.
    * @param toUse The list of rules to use.
    * @return The set of states that can be reached in one step using the given
    *         rules.
    */
-  public Set<State> successors(ITask toRun, List<IRewriteRule> toUse) {
+  public Set<State> successors(IMachine toRun, List<IRewriteRule> toUse) {
     Set<State> ans = new HashSet<>();
     for (IRewriteRule r : toUse) {
       if (r.canRewrite(this.global, this.stacks.get(toRun))) {
@@ -34,11 +34,11 @@ public class State {
   }
 
   /**
-   * Returns the set of tasks accounted for in this state
+   * Returns the set of machines accounted for in this state
    * 
-   * @return the set of tasks in this state
+   * @return the set of machines in this state
    */
-  public Set<ITask> tasksInState() {
+  public Set<IMachine> machinesInState() {
     return this.stacks.keySet();
   }
 
@@ -60,10 +60,10 @@ public class State {
   @Override
   public String toString() {
     String ans = "\nGlobal State: " + this.global;
-    int taskNum = 0;
-    for (ITask t : this.stacks.keySet()) {
-      ans += " Task " + taskNum + ": " + this.stacks.get(t).toString();
-      taskNum += 1;
+    int machineNum = 0;
+    for (IMachine t : this.stacks.keySet()) {
+      ans += " Task " + machineNum + ": " + this.stacks.get(t).toString();
+      machineNum += 1;
     }
     return ans;
   }
