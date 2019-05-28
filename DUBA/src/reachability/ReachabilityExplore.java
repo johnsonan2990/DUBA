@@ -15,26 +15,26 @@ import java.util.Set;
 public class ReachabilityExplore {
   // private final Set<State> nextExplore;
   private final Set<State> reached;
-  private final List<ITask> tasks;
+  private final List<IMachine> machines;
   private final IScheduler sched;
-  private final Map<ITask, Set<State>> reachedLast;
+  private final Map<IMachine, Set<State>> reachedLast;
 
   /**
    * Create an explorer.
    * 
-   * @param initial The initial state of all tasks
-   * @param tasks   The list of tasks.
-   * @param sched   The scheduler to use.
+   * @param initial  The initial state of all machines
+   * @param machines The list of machines.
+   * @param sched    The scheduler to use.
    */
-  ReachabilityExplore(State initial, List<ITask> tasks, IScheduler sched) {
+  ReachabilityExplore(State initial, List<IMachine> machines, IScheduler sched) {
 //    this.nextExplore = new HashSet<>();
 //    this.nextExplore.add(initial);
     this.reached = new HashSet<>();
     this.reached.add(initial);
-    this.tasks = tasks;
+    this.machines = machines;
     this.sched = sched;
     this.reachedLast = new HashMap<>();
-    for (ITask t : tasks) {
+    for (IMachine t : machines) {
       this.reachedLast.put(t, new HashSet<>());
     }
   }
@@ -47,14 +47,14 @@ public class ReachabilityExplore {
    * @return The set of states reachable in that many rounds
    */
   public Set<State> run(int rounds) {
-    for (int i = 0; i < rounds * this.tasks.size(); i += 1) {
+    for (int i = 0; i < rounds * this.machines.size(); i += 1) {
       this.step();
     }
     return this.reached;
   }
 
   /**
-   * Pick the next task and run it until no more states can be reached.
+   * Pick the next machine and run it until no more states can be reached.
    * 
    * @return The set of reachable states
    */
@@ -66,17 +66,16 @@ public class ReachabilityExplore {
   }
 
   /**
-   * Run the given procedure to completion. 
-   * Add all states found to reached.
-   * Add all states found where the task has terminated to terminalReached.
+   * Run the given procedure to completion. Add all states found to reached. Add
+   * all states found where the machine has terminated to terminalReached.
    * 
-   * @param toRun The task to be run.
+   * @param toRun The machine to be run.
    */
-  private void runProcedure(ITask toRun) {
+  private void runProcedure(IMachine toRun) {
     Set<State> unexplored = setDiff(this.reached, this.reachedLast.get(toRun));
 //    unexplored.addAll(this.nextExplore);
 //    this.nextExplore.clear();
-//    int numTasks = this.tasks.size();
+//    int numTasks = this.machines.size();
 
     while (!unexplored.isEmpty()) {
       Set<State> nextUnexplored = new HashSet<>();
@@ -90,10 +89,10 @@ public class ReachabilityExplore {
             reached.add(successor);
             nextUnexplored.add(successor);
           }
-//          if (successor.tasksInState().size() > numTasks) {
-//            for (ITask t : successor.tasksInState()) {
-//              if (!this.tasks.contains(t)) {
-//                this.tasks.add(t);
+//          if (successor.machinesInState().size() > numTasks) {
+//            for (ITask t : successor.machinesInState()) {
+//              if (!this.machines.contains(t)) {
+//                this.machines.add(t);
 //              }
 //            }
 //          }
@@ -110,7 +109,7 @@ public class ReachabilityExplore {
    */
   public boolean complete() {
     boolean ans = true;
-    for (ITask t : this.reachedLast.keySet()) {
+    for (IMachine t : this.reachedLast.keySet()) {
       ans = ans && setDiff(this.reached, this.reachedLast.get(t)).isEmpty();
     }
     return ans;
@@ -120,7 +119,7 @@ public class ReachabilityExplore {
    * Pick one procedure and run it.
    */
   private void step() {
-    ITask next = this.sched.pickTask(this.tasks);
+    IMachine next = this.sched.pickTask(this.machines);
     this.runProcedure(next);
     this.reachedLast.get(next).addAll(this.reached);
   }

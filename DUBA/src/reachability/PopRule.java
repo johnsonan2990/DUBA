@@ -16,8 +16,8 @@ public class PopRule extends ARewriteRule {
   }
 
   @Override
-  public State rewrite(Map<ITask, Stack<Integer>> stacks, ITask task) {
-    Map<ITask, Stack<Integer>> nextMap = cloneMap(stacks);
+  public State rewrite(Map<IMachine, Stack<Integer>> stacks, IMachine task) {
+    Map<IMachine, Stack<Integer>> nextMap = cloneMap(stacks);
     Stack<Integer> toRewrite = nextMap.get(task);
     toRewrite.pop();
     return new State(this.globalTo, nextMap);

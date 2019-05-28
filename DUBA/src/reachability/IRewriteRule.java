@@ -14,14 +14,15 @@ public interface IRewriteRule {
   boolean canRewrite(int global, Stack<Integer> local);
 
   /**
-   * The new State after this rewrite rule is applied to the given task's stack.
+   * The new State after this rewrite rule is applied to the given machine's
+   * stack.
    * 
-   * @param stacks The current map from Tasks to local stacks, to be used in the
-   *               next state
-   * @param task   The task to rewrite for
+   * @param stacks  The current map from machines to local stacks, to be used in
+   *                the next state
+   * @param machine The machine to rewrite for
    * @return The next state after this rule is applied
    */
-  State rewrite(Map<ITask, Stack<Integer>> stacks, ITask task);
+  State rewrite(Map<IMachine, Stack<Integer>> stacks, IMachine machine);
 
   /**
    * The bound for a machine's stack. A rule will not rewrite a stack if it would

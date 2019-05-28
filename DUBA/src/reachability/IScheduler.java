@@ -16,5 +16,5 @@ public interface IScheduler {
    * @param tasks
    * @return The next task to run.
    */
-  ITask pickTask(List<ITask> tasks);
+  IMachine pickTask(List<IMachine> tasks);
 }

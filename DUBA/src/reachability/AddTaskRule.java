@@ -8,7 +8,7 @@ import java.util.Stack;
  * state.
  */
 public class AddTaskRule extends ARewriteRule {
-  private final ITask toAdd;
+  private final IMachine toAdd;
 
   /**
    * 
@@ -17,14 +17,14 @@ public class AddTaskRule extends ARewriteRule {
    * @param globalTo   The global state to rewrite to
    * @param toAdd      The task to add
    */
-  AddTaskRule(int globalFrom, int topFrom, int globalTo, ITask toAdd) {
+  AddTaskRule(int globalFrom, int topFrom, int globalTo, IMachine toAdd) {
     super(globalFrom, topFrom, globalTo);
     this.toAdd = toAdd;
   }
 
   @Override
-  public State rewrite(Map<ITask, Stack<Integer>> stacks, ITask task) {
-    Map<ITask, Stack<Integer>> newMap = cloneMap(stacks);
+  public State rewrite(Map<IMachine, Stack<Integer>> stacks, IMachine task) {
+    Map<IMachine, Stack<Integer>> newMap = cloneMap(stacks);
     newMap.put(this.toAdd, this.toAdd.initStack());
     return new State(this.globalTo, newMap);
   }
