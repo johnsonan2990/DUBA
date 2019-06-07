@@ -1,6 +1,6 @@
 package reachability;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Stack;
 
 public interface IRewriteRule {
@@ -17,12 +17,12 @@ public interface IRewriteRule {
    * The new State after this rewrite rule is applied to the given machine's
    * stack.
    * 
-   * @param stacks  The current map from machines to local stacks, to be used in
-   *                the next state
-   * @param machine The machine to rewrite for
+   * @param stacks  The current list of stacks for this state, indexed by machine
+   * @param machine The machine index to rewrite
+   * @param delays  The number of delays the state has taken
    * @return The next state after this rule is applied
    */
-  State rewrite(Map<IMachine, Stack<Integer>> stacks, IMachine machine);
+  State rewrite(List<Stack<Integer>> stacks, int machineNum, int delays);
 
   /**
    * The bound for a machine's stack. A rule will not rewrite a stack if it would

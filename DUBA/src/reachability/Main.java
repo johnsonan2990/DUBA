@@ -2,14 +2,15 @@ package reachability;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 public class Main {
 
-  public static List<IMachine> setupTasks() {
+  private static List<IMachine> setupTasks() {
     /*
      * Set of global states: {0, 1, 2, 3} 
      * Machine 1 states: {1, 2} 
@@ -37,7 +38,7 @@ public class Main {
     return Arrays.asList(t1, t2);
   }
   
-  public static List<IMachine> setupTasks2() {
+  private static List<IMachine> setupTasks2() {
     /**
      * Machine 1:
      * (0, 1) -> (1, 2)
@@ -86,17 +87,74 @@ public class Main {
     return ans;
   }
 
+  private static List<IMachine> setupTasks3() {
+    /**
+     * Global init: 0
+        Machine 1 (Init 1):
+        (0, 1) -> (1, 2)
+        (3, 2) -> (0, 1)
+        (2, 2) -> (4, 2)
+        Machine 2 (Init 4):
+        (1, 4) -> (3, 5.4)
+        (1, 5) -> (3, 6.5)
+        (1, 6) -> (3, 7.6)
+        Machine 3 (Init 8):
+        (3, 8) -> (2, 8)
+        (4, 8) -> (2, 8.8)
+     */
+
+    IRewriteRule r1 = new OverwriteRule(0, 1, 1, 2);
+    IRewriteRule r2 = new OverwriteRule(3, 2, 0, 1);
+    IRewriteRule r3 = new OverwriteRule(2, 2, 4, 2);
+
+    IRewriteRule r4 = new PushRule(1, 4, 3, 4, 5);
+    IRewriteRule r5 = new PushRule(1, 5, 3, 5, 6);
+    IRewriteRule r6 = new PushRule(1, 6, 3, 6, 7);
+
+    IRewriteRule r7 = new OverwriteRule(3, 8, 2, 8);
+    IRewriteRule r8 = new PushRule(4, 8, 2, 8, 8);
+
+    IMachine m1 = new Machine(Arrays.asList(r1, r2, r3), 1);
+    IMachine m2 = new Machine(Arrays.asList(r4, r5, r6), 4);
+    IMachine m3 = new Machine(Arrays.asList(r7, r8), 8);
+    return Arrays.asList(m1, m2, m3);
+
+  }
+
   public static State setupInit(List<IMachine> machines) {
-    Map<IMachine, Stack<Integer>> initStacks = new HashMap<>();
+    List<Stack<Integer>> initStacks = new ArrayList<>();
     for (IMachine m : machines) {
-      initStacks.put(m, m.initStack());
+      initStacks.add(m.initStack());
     }
-    return new State(0, initStacks);
+    return new State(0, initStacks, 0);
   }
 
   public static void main(String[] args) {
     List<IMachine> machines = setupTasks2();
-    RoundRobinExplore explorer = new RoundRobinExplore(machines, new RoundRobin());
-    System.out.println(explorer.run(1, 20, setupInit(machines)).toString());
+    RoundRobinExplore explorer2 = new RoundRobinExplore(machines, new RoundRobin());
+
+    int delayBound = 20;
+    Set<State> set = explorer2.runWithDelays(10, 15, setupInit(machines), delayBound);
+    for (int delay = 0; delay <= delayBound; delay++) {
+      System.out.println("Delay Bound " + delay);
+      int delays = delay;
+      System.out.println(set.stream()
+          .sorted(Comparator.comparing(s -> s.timeStamp))
+          .map(s -> s.abstraction()).distinct() // Add or remove to see abstractions or full states
+          .filter(s -> s.getDelays() == delays)
+          .collect(Collectors.toList())
+          .toString());
+      System.out.println("-------------------------");
+    }
+    ReachabilityExplore explorer = new ReachabilityExplore(setupInit(machines), machines,
+        new RoundRobin());
+    Set<State> setAllDelay0 = set.stream().map(s -> s.cloneAndSetDelays(0))
+        .collect(Collectors.toSet());
+    System.out.println(explorer.run().stream()
+        .map(s -> s.cloneAndSetDelays(0))
+        .distinct()
+        .filter(s -> !setAllDelay0.contains(s))
+        .collect(Collectors.toSet())
+        .toString());
   }
 }

@@ -14,8 +14,8 @@ public class Machine implements IMachine {
   }
 
   @Override
-  public Set<State> getSuccessors(State state) {
-    return state.successors(this, this.rules);
+  public Set<State> getSuccessors(State state, int machineNum) {
+    return state.successors(machineNum, this.rules);
   }
 
   @Override

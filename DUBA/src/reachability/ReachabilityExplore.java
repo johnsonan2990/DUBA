@@ -47,8 +47,11 @@ public class ReachabilityExplore {
    * @return The set of states reachable in that many rounds
    */
   public Set<State> run(int rounds) {
-    for (int i = 0; i < rounds * this.machines.size(); i += 1) {
-      this.step();
+    for (int round = 0; round < rounds; round += 1) {
+      for (int machine = 0; machine < this.machines.size(); machine += 1) {
+        this.runProcedure(machine);
+        this.reachedLast.get(this.machines.get(machine)).addAll(this.reached);
+      }
     }
     return this.reached;
   }
@@ -60,7 +63,10 @@ public class ReachabilityExplore {
    */
   public Set<State> run() {
     while (!this.complete()) {
-      this.step();
+      for (int machine = 0; machine < this.machines.size(); machine += 1) {
+        this.runProcedure(machine);
+        this.reachedLast.get(this.machines.get(machine)).addAll(this.reached);
+      }
     }
     return this.reached;
   }
@@ -71,31 +77,19 @@ public class ReachabilityExplore {
    * 
    * @param toRun The machine to be run.
    */
-  private void runProcedure(IMachine toRun) {
-    Set<State> unexplored = setDiff(this.reached, this.reachedLast.get(toRun));
-//    unexplored.addAll(this.nextExplore);
-//    this.nextExplore.clear();
-//    int numTasks = this.machines.size();
+  private void runProcedure(int machineNum) {
+    Set<State> unexplored = setDiff(this.reached,
+        this.reachedLast.get(this.machines.get(machineNum)));
 
     while (!unexplored.isEmpty()) {
       Set<State> nextUnexplored = new HashSet<>();
       for (State s : unexplored) {
-        Set<State> successors = toRun.getSuccessors(s);
-//        if (successors.isEmpty()) {
-//          this.nextExplore.add(s);
-//        }
+        Set<State> successors = this.machines.get(machineNum).getSuccessors(s, machineNum);
         for (State successor : successors) {
           if (!reached.contains(successor)) {
             reached.add(successor);
             nextUnexplored.add(successor);
           }
-//          if (successor.machinesInState().size() > numTasks) {
-//            for (ITask t : successor.machinesInState()) {
-//              if (!this.machines.contains(t)) {
-//                this.machines.add(t);
-//              }
-//            }
-//          }
         }
       }
       unexplored.clear();
@@ -113,15 +107,6 @@ public class ReachabilityExplore {
       ans = ans && setDiff(this.reached, this.reachedLast.get(t)).isEmpty();
     }
     return ans;
-  }
-
-  /**
-   * Pick one procedure and run it.
-   */
-  private void step() {
-    IMachine next = this.sched.pickTask(this.machines);
-    this.runProcedure(next);
-    this.reachedLast.get(next).addAll(this.reached);
   }
 
   /**
