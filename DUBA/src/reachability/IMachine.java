@@ -14,11 +14,12 @@ public interface IMachine {
    * Returns all of the possible successors to the given state using this
    * machine's rewrite rules
    * 
-   * @param state the state to find the successors of
+   * @param state      the state to find the successors of
+   * @param machineNum the index of machine running
    * @return The set of all successor states to the given one using this machine's
    *         rules
    */
-  Set<State> getSuccessors(State state);
+  Set<State> getSuccessors(State state, int machineNum);
 
   /**
    * The initial stack for this machine

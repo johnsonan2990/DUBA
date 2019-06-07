@@ -1,6 +1,6 @@
 package reachability;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -16,11 +16,10 @@ public class PopRule extends ARewriteRule {
   }
 
   @Override
-  public State rewrite(Map<IMachine, Stack<Integer>> stacks, IMachine task) {
-    Map<IMachine, Stack<Integer>> nextMap = cloneMap(stacks);
-    Stack<Integer> toRewrite = nextMap.get(task);
-    toRewrite.pop();
-    return new State(this.globalTo, nextMap);
+  public State rewrite(List<Stack<Integer>> stacks, int machineNum, int delays) {
+    List<Stack<Integer>> nextStacks = State.cloneList(stacks);
+    nextStacks.get(machineNum).pop();
+    return new State(this.globalTo, nextStacks, delays);
   }
 
 }

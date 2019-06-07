@@ -1,6 +1,6 @@
 package reachability;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -18,13 +18,13 @@ public class OverwriteRule extends ARewriteRule {
   }
 
   @Override
-  public State rewrite(Map<IMachine, Stack<Integer>> stacks, IMachine task) {
+  public State rewrite(List<Stack<Integer>> stacks, int machineNum, int delays) {
     // Need to copy states to avoid mutating them.
-    Map<IMachine, Stack<Integer>> nextMap = cloneMap(stacks);
-    Stack<Integer> toRewrite = nextMap.get(task);
+    List<Stack<Integer>> nextList = State.cloneList(stacks);
+    Stack<Integer> toRewrite = nextList.get(machineNum);
     toRewrite.pop();
     toRewrite.push(this.topTo);
-    return new State(this.globalTo, nextMap);
+    return new State(this.globalTo, nextList, delays);
   }
 
 }
