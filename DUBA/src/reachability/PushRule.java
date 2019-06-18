@@ -112,4 +112,13 @@ class PushRule extends ARewriteRule {
   public int hashCode() {
     return Objects.hash(this.globalFrom, this.globalTo, this.topFrom, this.topTo, this.toPush);
   }
+
+  @Override
+  public boolean looksLikeThisTarget(Pair<Integer, Stack<Integer>> local,
+      List<IRewriteRule> others, boolean preMet) {
+    return preMet
+        && this.topTo.isPresent() 
+        && !local.getSecond().isEmpty()
+        && local.getSecond().peek().equals(this.topTo.get());
+  }
 }

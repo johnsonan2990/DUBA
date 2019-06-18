@@ -6,6 +6,5 @@
 	<classpathentry kind="lib" path="C:/EclipseJars/bouncing.jar"/>
 	<classpathentry kind="lib" path="C:/EclipseJars/javalib.jar"/>
 	<classpathentry kind="lib" path="C:/EclipseJars/tester.jar"/>
-	<classpathentry kind="lib" path="C:/EclipseJars/junit-4.13-beta-3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

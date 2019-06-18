@@ -84,4 +84,10 @@ abstract class ARewriteRule implements IRewriteRule {
   public void makeNewRuleIfPush(int globalFrom, int topFrom, int globalTo, List<IRewriteRule> acc) {
     // Nothing to do unless this is a push rule!
   }
+
+  @Override
+  public boolean looksLikeThisTarget(Pair<Integer, Stack<Integer>> local, List<IRewriteRule> others,
+      boolean preMet) {
+    return false;
+  }
 }
