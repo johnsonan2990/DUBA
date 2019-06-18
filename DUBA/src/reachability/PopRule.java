@@ -64,4 +64,11 @@ class PopRule extends ARewriteRule {
   public int hashCode() {
     return Objects.hash(this.globalFrom, this.globalTo, this.topFrom);
   }
+
+  @Override
+  public boolean looksLikeThisTarget(Pair<Integer, Stack<Integer>> local, List<IRewriteRule> others,
+      boolean preMet) {
+    return !preMet && local.getFirst().equals(this.globalTo) && (local.getSecond().isEmpty() || others.stream()
+            .anyMatch(r -> r.looksLikeThisTarget(local, others, true)));
+  }
 }

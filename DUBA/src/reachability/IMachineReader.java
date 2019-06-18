@@ -68,6 +68,7 @@ public interface IMachineReader {
     if (rules != null) {
       ans.add(new Machine(rules, initLocal));
     }
+    s.close();
     return new Pair<>(initGlobal, ans);
   }
 }

@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-public class Machine implements IMachine {
+class Machine implements IMachine {
   private final List<IRewriteRule> rules;
   private final int localInit;
 
@@ -32,5 +32,12 @@ public class Machine implements IMachine {
         .flatMap(r -> r.overapproxRewrite(this.rules).stream())
         .collect(Collectors.toList()),
         this.localInit);
+  }
+
+  @Override
+  public boolean isGenerator(State s, int machIdx) {
+    Pair<Integer, Stack<Integer>> state = s.getLocalState(machIdx);
+
+    return this.rules.stream().anyMatch(r -> r.looksLikeThisTarget(state, this.rules, false));
   }
 }

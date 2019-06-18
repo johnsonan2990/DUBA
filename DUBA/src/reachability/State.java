@@ -63,29 +63,66 @@ public class State {
     }
     return new State(this.global, list, this.delaysTaken, this.timeStamp);
   }
+  
+  /**
+   * Return the part of this state relevant to the given machine.
+   * 
+   * @param machIdx
+   * @return
+   */
+  public Pair<Integer, Stack<Integer>> getLocalState(int machIdx) {
+    return new Pair<>(this.global, this.stacks.get(machIdx));
+  }
 
+  /**
+   * The delays taken to get to this state.
+   * @return the number of delays.
+   */
   public int getDelays() {
     return this.delaysTaken;
   }
 
+  /**
+   * Return a new state that is the same as this one with a new timeStamp, and delays incremented by one.
+   * @return the new state.
+   */
   public State cloneAndSetDelays() {
     return this.cloneAndSetDelays(this.delaysTaken + 1);
   }
 
+  /**
+   * Return a new state that is the same as this one with a new timeStamp, and delays set to whatever was passed.
+   * @return the new state.
+   */
   public State cloneAndSetDelays(int newDelays) {
     return new State(this.global, cloneList(this.stacks), newDelays);
   }
 
+  /**
+   * Return a clone of a list of stacks.
+   * @param list the list to clone.
+   * @return a clone of the given.
+   */
   public static List<Stack<Integer>> cloneList(List<Stack<Integer>> list) {
     List<Stack<Integer>> ans = new ArrayList<>();
     for (Stack<Integer> stack : list) {
-      Stack<Integer> newStack = new Stack<>();
-      for (int i = 0; i < stack.size(); i += 1) {
-        newStack.push(stack.get(i).intValue());
-      }
-      ans.add(newStack);
+      
+      ans.add(cloneStack(stack));
     }
     return ans;
+  }
+  
+  /**
+   * Return a clone of the given stack.
+   * @param stack the stack to clone.
+   * @return a clone of the given stack.
+   */
+  private static Stack<Integer> cloneStack(Stack<Integer> stack) {
+    Stack<Integer> newStack = new Stack<>();
+    for (int i = 0; i < stack.size(); i += 1) {
+      newStack.push(stack.get(i).intValue());
+    }
+    return newStack;
   }
 
   @Override
@@ -131,6 +168,5 @@ public class State {
       }
     }
     return ans.toString();
-
   }
 }

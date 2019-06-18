@@ -45,9 +45,19 @@ public interface IRewriteRule {
   void makeNewRuleIfPush(int globalFrom, int topFrom, int globalTo, List<IRewriteRule> acc);
 
   /**
+   * Return whether or not this rule has a similar-looking target to the given
+   * local/global state.
+   * 
+   * @param local
+   * @return whether or not the given state might be a target of this rule.
+   */
+  boolean looksLikeThisTarget(Pair<Integer, Stack<Integer>> local, List<IRewriteRule> others,
+      boolean preMet);
+
+  /**
    * The bound for a machine's stack. A rule will not rewrite a stack if it would
    * make the stack larger than this.
    * Set to 0 to ignore the stack bound.
    */
-  static int stackBound = 3;
+  static int stackBound = 5;
 }

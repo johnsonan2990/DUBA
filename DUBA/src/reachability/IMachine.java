@@ -36,4 +36,14 @@ public interface IMachine {
    */
   IMachine simplify();
 
+  /**
+   * Is the given state a generator for this machine?
+   * 
+   * @param s       the state to test.
+   * @param machIdx the index of this machine in the state.
+   * @return whether or not the given state looks like the target of a pop action
+   *         for this machine
+   */
+  boolean isGenerator(State s, int machIdx);
+
 }
