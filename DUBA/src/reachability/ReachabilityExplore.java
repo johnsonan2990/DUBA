@@ -16,7 +16,6 @@ public class ReachabilityExplore {
   // private final Set<State> nextExplore;
   private final Set<State> reached;
   private final List<IMachine> machines;
-  private final IScheduler sched;
   private final Map<IMachine, Set<State>> reachedLast;
 
   /**
@@ -26,13 +25,12 @@ public class ReachabilityExplore {
    * @param machines The list of machines.
    * @param sched    The scheduler to use.
    */
-  ReachabilityExplore(State initial, List<IMachine> machines, IScheduler sched) {
+  ReachabilityExplore(State initial, List<IMachine> machines) {
 //    this.nextExplore = new HashSet<>();
 //    this.nextExplore.add(initial);
     this.reached = new HashSet<>();
     this.reached.add(initial);
     this.machines = machines;
-    this.sched = sched;
     this.reachedLast = new HashMap<>();
     for (IMachine t : machines) {
       this.reachedLast.put(t, new HashSet<>());

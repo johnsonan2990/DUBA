@@ -90,7 +90,7 @@ public class RoundRobinExplore {
       if (s.getDelays() < delayBound) {
         State delayed = s.cloneAndSetDelays();
         nextMachineFrontier.add(delayed);
-        this.reached.add(delayed);
+//        this.reached.add(delayed);
       }
       Set<State> successors = this.machines.get(machineNum).getSuccessors(s, machineNum);
       this.reached.addAll(successors);
@@ -103,4 +103,18 @@ public class RoundRobinExplore {
     }
     return nextFrontier;
   }
+
+  public Set<State> overapproxReachable(State initial) {
+    List<IMachine> simplerMachines = this.machines.stream()
+        .map(m -> m.simplify())
+        .collect(Collectors.toList());
+    return new ReachabilityExplore(initial, simplerMachines).run();
+  }
+//
+//  public Set<State> intersectGenerator(Set<State> reachable) {
+//    Set<State> ans = new HashSet<>();
+//    for (State s : reachable) {
+//      
+//    }
+//  }
 }

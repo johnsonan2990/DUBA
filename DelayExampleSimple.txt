@@ -1,61 +1,15 @@
-Global init: 0
-Machine 1 (Init 1):
+Initial Global: 0
+
+Machine1 initial local: 1
 (0, 1) -> (1, 2)
 (3, 2) -> (0, 1)
 (2, 2) -> (4, 2)
-Machine 2 (Init 4):
+
+Machine2 initial local: 4
 (1, 4) -> (3, 5.4)
 (1, 5) -> (3, 6.5)
 (1, 6) -> (3, 7.6)
-... Can have as many as you want; these are different so that you see different abstract states.
 
-Machine 3 (Init 8):
+Machine3 initial local: 8
 (3, 8) -> (2, 8)
 (4, 8) -> (2, 8.8)
-
-
-
-Reachable with no delay:
-<0 | 1, 4, 8> (init)
-<1 | 2, 4, 8>
---context Switch
-<3 | 2, 5.4, 8>
---Switch
-<2 | 2, 5.4, 8>
---Switch
-<4 | 2, 5.4, 8>
---Switch
-(Machine 2 is completely dormant now)
---Switch
-<2 | 2, 5.4, 8.8>
---Switch
-<4 | 2, 5.4, 8.8>
---Switch twice
-<2 | 2, 5.4, 8.8.8>
-<4 | 2, 5.4, 8.8.8>
-<2 | 2, 5.4, 8.8.8.8>
-<4 | 2, 5.4, 8.8.8.8>
-
-...These will keep looping but find nothing more interesting.
-
-New with 1 delay:
-(only delay that matters is right after machine 2 pushes, skipping machine 3.)
-...<3 | 2, 5.4, 8>
-delay, skip machine 3
-<0 | 1, 5.4, 8>
-<1 | 2, 5.4, 8>
---Switch
-<3 | 2, 6.5.4, 8>
---Switch
-... 3's stack will grow infinitely like before, but it will be with machine 2 having stack 6.5.4
-
-New with 2 delays
-Same as before, but with 2's stack being 7.6.5.4
-...<3 | 2, 6.5.4, 8>
-delay, skip machine 3
-<0 | 1, 6.5.4, 8>
-<1 | 2, 6.5.4, 8>
---Switch
-<3 | 2, 7.6.5.4, 8>
-... 3's stack will grow infinitely, and this is all of the interesting tops of the stacks that there are for this program.
--> done
