@@ -28,4 +28,12 @@ public interface IMachine {
    */
   Stack<Integer> initStack();
 
+  /**
+   * Simplifies this machine by transforming all of its rules into simpler ones
+   * that guarantee exhaustive reachability analysis.
+   * 
+   * @return The new machine that looks like this one but has simpler rules.
+   */
+  IMachine simplify();
+
 }

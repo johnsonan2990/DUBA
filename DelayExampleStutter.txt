@@ -1,0 +1,15 @@
+Global init: 0
+
+Machine1 initial local: 1
+(0, 1) -> (1, 2)
+(3, 2) -> (0, 1)
+(4, 2) -> (2, 2)
+
+Machine2 initial local: 4
+(1, 4) -> (6, 4.6)
+(6, 4) -> (3, 4.4)
+(4, 4) -> (3, e)
+
+Machine3 initial local: 8
+(3, 8) -> (4, 8)
+(2, 8) -> (4, 8.8)

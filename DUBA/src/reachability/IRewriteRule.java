@@ -25,8 +25,29 @@ public interface IRewriteRule {
   State rewrite(List<Stack<Integer>> stacks, int machineNum, int delays);
 
   /**
+   * Return the list of rules that this rule will turn into when to statically
+   * overapproximate reachable states.
+   * 
+   * @param rules the other rules that the same machine has
+   * @return a list of new rules that look like this rule for exhaustive
+   *         reachability analysis
+   */
+  List<IRewriteRule> overapproxRewrite(List<IRewriteRule> otherRules);
+
+  /**
+   * Adds to the given list a new rule that represents what a pop rule might be
+   * knowing about this rule
+   * 
+   * @param globalFrom The pop rule's global from
+   * @param topFrom    the pop rule's top from
+   * @param globalTo   the pop rule's global to
+   */
+  void makeNewRuleIfPush(int globalFrom, int topFrom, int globalTo, List<IRewriteRule> acc);
+
+  /**
    * The bound for a machine's stack. A rule will not rewrite a stack if it would
    * make the stack larger than this.
+   * Set to 0 to ignore the stack bound.
    */
-  static int stackBound = 5;
+  static int stackBound = 3;
 }
