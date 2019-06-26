@@ -1,0 +1,12 @@
+Global init: 0
+
+PDA12: 1
+0 1 -> 1 2
+3 2 -> 0 1
+
+PDA47: 4
+0 4 -> 0 - # a pop action
+1 4 -> 2 5
+2 5 -> 3 4 6 # a push action
+3 4 -> 2 5 7
+0 6 -> 0 - # a pop action

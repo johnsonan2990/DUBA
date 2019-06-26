@@ -47,6 +47,7 @@ public interface IMachineReader {
     int initLocal = -1;
     while (s.hasNextLine()) {
       String line = s.nextLine();
+
       Matcher m = machAndInit.matcher(line);
       if (m.find()) {
         if (rules != null) {
@@ -54,14 +55,10 @@ public interface IMachineReader {
         }
         rules = new ArrayList<>();
         initLocal = Integer.parseInt(m.group(1));
-        while (s.hasNextLine()) {
-          String rule = s.nextLine();
-          if (!rule.equals("")) {
-            rules.add(ARewriteRule.RuleBuilder.build(rule));
-          }
-          else {
-            break;
-          }
+      }
+      else {
+        if (line.contains("->")) {
+          rules.add(ARewriteRule.RuleBuilder.build(line));
         }
       }
     }

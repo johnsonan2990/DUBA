@@ -59,5 +59,5 @@ public interface IRewriteRule {
    * make the stack larger than this.
    * Set to 0 to ignore the stack bound.
    */
-  static int stackBound = 5;
+  static int stackBound = 0;
 }

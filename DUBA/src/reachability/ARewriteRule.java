@@ -36,16 +36,16 @@ abstract class ARewriteRule implements IRewriteRule {
   public static class RuleBuilder {
     public static IRewriteRule build(String ruleAsString) {
       Map<String, Function<int[], IRewriteRule>> builders = new HashMap<>();
-      builders.put("\\(\\s?(\\d+),\\s?(\\d+)\\s?\\)\\s?->\\s?\\(\\s?(\\d+),\\s?(\\d+)\\s?\\)",
+      builders.put("\\(?\\s?(\\d+),?\\s?(\\d+)\\s?\\)?\\s?->\\s?\\(?\\s?(\\d+),?\\s?(\\d+)\\s?\\)?",
           a -> OverwriteRule.makeOverwrite(a));
       builders.put(
-          "\\(\\s?(\\d+),\\s?(\\d+)\\s?\\)\\s?->\\s?\\(\\s?(\\d+),\\s?(\\d+)\\.(\\d+)\\s?\\)",
+          "\\(?\\s?(\\d+),?\\s?(\\d+)\\s?\\)?\\s?->\\s?\\(?\\s?(\\d+),?\\s?(\\d+)\\.(\\d+)\\s?\\)?",
           a -> PushRule.makePush(a));
-      builders.put("\\(\\s?(\\d+),\\s?(\\d+)\\s?\\)\\s?->\\s?\\(\\s?(\\d+),\\s?e\\s?\\)",
+      builders.put("\\(?\\s?(\\d+),?\\s?(\\d+)\\s?\\)?\\s?->\\s?\\(?\\s?(\\d+),?\\s?[e-]\\s?\\)?",
           a -> PopRule.makePop(a));
-      builders.put("\\(\\s?(\\d+),\\s?e\\s?\\)\\s?->\\s?\\(\\s?(\\d+),\\s?(\\d+)\\s?\\)",
+      builders.put("\\(?\\s?(\\d+),?\\s?[e-]\\s?\\)?\\s?->\\s?\\(?\\s?(\\d+),?\\s?(\\d+)\\s?\\)?",
           a -> PushRule.makePush(a));
-      builders.put("\\(\\s?(\\d+),\\s?e\\s?\\)\\s?->\\s?\\(\\s?(\\d+),\\s?e\\s?\\)",
+      builders.put("\\(?\\s?(\\d+),?\\s?[e-]\\s?\\)?\\s?->\\s?\\(?\\s?(\\d+),?\\s?[e-]\\s?\\)?",
           a -> OverwriteRule.makeOverwrite(a));
 
       Function<int[], IRewriteRule> builder = null;
@@ -65,7 +65,8 @@ abstract class ARewriteRule implements IRewriteRule {
         return builder.apply(args);
       }
       else {
-        throw new IllegalArgumentException("Bad string input, please check format.");
+        throw new IllegalArgumentException(
+            "Bad string input \"" + ruleAsString + "\", please check format.");
       }
     }
   }

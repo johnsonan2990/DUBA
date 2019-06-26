@@ -1,0 +1,11 @@
+Global init:
+
+PDA 1 2: 1
+0 1 -> 1 2
+3 2 -> 0 1
+
+PDA 4 6: 4 # thread 1's local states 4..6
+0 4 -> 0 - # a pop action
+0 6 -> 0 -
+1 4 -> 2 5
+2 5 -> 3 4 6 # a push action
