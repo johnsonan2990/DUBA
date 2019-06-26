@@ -1,6 +1,5 @@
 package reachability;
 
-import java.io.InputStreamReader;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -80,9 +79,9 @@ public class RoundRobinExplore {
         .collect(Collectors.toSet());
   }
 
-  public void runWithDelaysInteractive(int timeSlice, int rounds, State initial) {
+  public void runWithDelaysInteractive(int timeSlice, int rounds, State initial, Readable r) {
     Set<State> gIntersectTR = this.intersectGenerator(this.overapproxReachable(initial));
-    Scanner in = new Scanner(new InputStreamReader(System.in));
+    Scanner in = new Scanner(r);
     int delay = -1;
     Set<State> reachedLastBound = null;
     Set<State> reachedThisBound = null;
@@ -122,6 +121,9 @@ public class RoundRobinExplore {
             }
           }
         }
+      }
+      else {
+        plateauLength = 0;
       }
       System.out.println("Continue? (y/n)");
       while (in.hasNext()) {

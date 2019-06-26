@@ -2,6 +2,7 @@
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -48,7 +49,7 @@ public class Main {
       }
     }
     catch (IOException e) {
-      throw new IllegalArgumentException("File not found.");
+      throw new IllegalArgumentException("File not found." + e.getLocalizedMessage());
     }
 
     System.out.println("Running " + filepath + " with slice=" + slice + ", rounds=" + rounds
@@ -69,7 +70,7 @@ public class Main {
     }
     else {
       explorer2.runWithDelaysInteractive(slice, rounds,
-          setupInit(input.getSecond(), input.getFirst()));
+          setupInit(input.getSecond(), input.getFirst()), new InputStreamReader(System.in));
     }
   }
 }
