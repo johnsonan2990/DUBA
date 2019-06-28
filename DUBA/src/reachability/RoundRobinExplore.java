@@ -63,6 +63,9 @@ public class RoundRobinExplore {
         nextMachineFrontier.clear();
         for (int step = 0; step < timeSlice; step++) {
           frontier = this.stepDelay(machine, frontier, nextMachineFrontier, delayBound);
+          if (frontier.isEmpty()) {
+            break;
+          }
         }
       }
     }
@@ -79,45 +82,48 @@ public class RoundRobinExplore {
         .collect(Collectors.toSet());
   }
 
-  public void runWithDelaysInteractive(int timeSlice, int rounds, State initial, Readable r) {
-    Set<State> gIntersectTR = this.intersectGenerator(this.overapproxReachable(initial));
+  public void runWithDelaysInteractive(int timeSlice, int rounds, State initial, Readable r,
+      int stackBoundForOverApprox, boolean cont) {
+    Set<State> z = this.overapproxReachable(initial, stackBoundForOverApprox).stream()
+        .map(s -> s.abstraction().cloneAndSetDelays(0)).collect(Collectors.toSet());
+    // System.out.println("Appprox set Z:" + z);
+    Set<State> gIntersectTR = this.intersectGenerator(z);
+    System.out.println("G intersect Z:" + gIntersectTR);
     Scanner in = new Scanner(r);
     int delay = -1;
-    Set<State> reachedLastBound = null;
-    Set<State> reachedThisBound = null;
+    List<State> reachedThisBound;
     int plateauLength = 0;
+    int delayB = 4;
+    Set<State> known = this.runWithDelays(timeSlice, rounds, initial, delayB);
     while (true) {
       delay++;
       int d = delay;
       System.out.println("New abstract states with delay " + delay + ":");
-      if (reachedThisBound != null) {
-        reachedLastBound = reachedThisBound;
+      if (delay > delayB) {
+        delayB += 4;
+        known = this.runWithDelays(timeSlice, rounds, initial, delayB);
       }
-      reachedThisBound = new HashSet<>();
-      reachedThisBound
-          .addAll(abstractCleanAndSort(this.runWithDelays(timeSlice, rounds, initial, delay)));
-      System.out.println(
-          reachedThisBound.stream().filter(s -> s.getDelays() == d).collect(Collectors.toList()));
+      reachedThisBound = abstractCleanAndSort(known).stream().filter(s -> s.getDelays() == d)
+          .collect(Collectors.toList());
+      System.out.println(reachedThisBound);
 
-      if (reachedThisBound.equals(reachedLastBound)) {
+      if (reachedThisBound.isEmpty()) {
         plateauLength++;
-        if (plateauLength >= this.machines.size()) {
+        if (plateauLength % this.machines.size() == 0 && plateauLength > 0) {
           System.out.println(
               "Plateau has reached length of " + plateauLength + ". Testing convergence...");
-          Set<State> thisAll0Delay = reachedThisBound.stream().map(s -> s.cloneAndSetDelays(0))
-              .collect(Collectors.toSet());
+          Set<State> thisAll0Delay = known.stream().filter(s -> s.getDelays() <= d)
+              .map(s -> s.abstraction().cloneAndSetDelays(0)).collect(Collectors.toSet());
           Set<State> missed = ReachabilityExplore.setDiff(gIntersectTR, thisAll0Delay);
           if (missed.isEmpty()) {
-            System.out.println("Found all reachable states! Here they are:");
-            System.out.println(abstractCleanAndSort(this.reached));
+            System.out.println("Found all reachable states!");
             in.close();
             return;
           }
           else {
-            System.out.println("Not quite there! Missed these generators:");
-            System.out.println(missed);
-            if (plateauLength >= 2 * this.machines.size()) {
-              System.out.println("Maybe they aren't reachable?");
+            System.out.println("Not quite there! Missed " + missed.size() + " generators");
+            if (missed.size() < 20) {
+              System.out.println(": " + missed);
             }
           }
         }
@@ -125,16 +131,18 @@ public class RoundRobinExplore {
       else {
         plateauLength = 0;
       }
-      System.out.println("Continue? (y/n)");
-      while (in.hasNext()) {
-        String next = in.next();
-        if (next.equals("n") || next.equals("N")) {
-          System.out.println("Quitting.");
-          in.close();
-          return;
-        }
-        if (next.equals("y") || next.equals("Y")) {
-          break;
+      if (cont) {
+        System.out.println("Continue? (y/n)");
+        while (in.hasNext()) {
+          String next = in.next();
+          if (next.equals("n") || next.equals("N")) {
+            System.out.println("Quitting.");
+            in.close();
+            return;
+          }
+          if (next.equals("y") || next.equals("Y")) {
+            break;
+          }
         }
       }
     }
@@ -175,11 +183,11 @@ public class RoundRobinExplore {
     return nextFrontier;
   }
 
-  private Set<State> overapproxReachable(State initial) {
-    List<IMachine> simplerMachines = this.machines.stream()
-        .map(m -> m.simplify())
+  private Set<State> overapproxReachable(State initial, int bound) {
+    List<IMachine> simplerMachines = this.machines.stream().map(m -> m.simplify(bound))
         .collect(Collectors.toList());
-    return new ReachabilityExplore(initial, simplerMachines).run();
+    return new ReachabilityExplore(initial, simplerMachines).run().stream()
+        .map(s -> s.abstraction()).collect(Collectors.toSet());
   }
 
   private Set<State> intersectGenerator(Set<State> reachable) {

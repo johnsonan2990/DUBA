@@ -32,9 +32,10 @@ public interface IMachine {
    * Simplifies this machine by transforming all of its rules into simpler ones
    * that guarantee exhaustive reachability analysis.
    * 
+   * @param the Stack bound to use
    * @return The new machine that looks like this one but has simpler rules.
    */
-  IMachine simplify();
+  IMachine simplify(int bound);
 
   /**
    * Is the given state a generator for this machine?

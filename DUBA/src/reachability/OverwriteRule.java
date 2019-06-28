@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -51,7 +52,7 @@ public class OverwriteRule extends ARewriteRule {
   }
 
   @Override
-  public List<IRewriteRule> overapproxRewrite(List<IRewriteRule> otherRules) {
+  public List<IRewriteRule> overapproxRewrite(int bound, Set<Integer> emergingSymbols) {
     return Arrays.asList(this);
   }
   

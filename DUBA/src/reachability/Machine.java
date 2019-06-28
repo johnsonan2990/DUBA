@@ -1,5 +1,6 @@
 package reachability;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -27,17 +28,28 @@ class Machine implements IMachine {
   }
 
   @Override
-  public IMachine simplify() {
+  public IMachine simplify(int bound) {
+    Set<Integer> emerging = new HashSet<>();
+    for (IRewriteRule r : this.rules) {
+      r.addEmergingSymbols(emerging);
+    }
     return new Machine(this.rules.stream()
-        .flatMap(r -> r.overapproxRewrite(this.rules).stream())
-        .collect(Collectors.toList()),
-        this.localInit);
+        .flatMap(r -> r.overapproxRewrite(bound, emerging).stream())
+        .collect(Collectors.toList()), this.localInit);
   }
 
   @Override
   public boolean isGenerator(State s, int machIdx) {
     Pair<Integer, Stack<Integer>> state = s.getLocalState(machIdx);
-
-    return this.rules.stream().anyMatch(r -> r.looksLikeThisTarget(state, this.rules, false));
+    Set<Integer> popGlobals = new HashSet<>();
+    for (IRewriteRule r : this.rules) {
+      r.addGlobalToIfPop(popGlobals);
+    }
+    Set<Integer> emerging = new HashSet<>();
+    for (IRewriteRule r : this.rules) {
+      r.addEmergingSymbols(emerging);
+    }
+    return popGlobals.contains(state.getFirst())
+        && (state.getSecond().isEmpty() || emerging.contains(state.getSecond().peek()));
   }
 }
