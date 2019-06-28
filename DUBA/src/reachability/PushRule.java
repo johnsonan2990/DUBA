@@ -1,9 +1,10 @@
 package reachability;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -14,8 +15,8 @@ import java.util.Stack;
  *
  */
 class PushRule extends ARewriteRule {
-  private final Optional<Integer> topTo;
-  private final int toPush;
+  protected final Optional<Integer> topTo;
+  protected final int toPush;
 
   /**
    * To make a push rule from a non-empty stack.
@@ -61,7 +62,7 @@ class PushRule extends ARewriteRule {
   @Override
   public boolean canRewrite(int global, Stack<Integer> local) {
     return super.canRewrite(global, local)
-        && (IRewriteRule.stackBound == 0 || (local.size() < IRewriteRule.stackBound));
+        && ((IRewriteRule.stackBound == 0) || (local.size() < IRewriteRule.stackBound));
   }
 
   @Override
@@ -78,16 +79,20 @@ class PushRule extends ARewriteRule {
   }
 
   @Override
-  public List<IRewriteRule> overapproxRewrite(List<IRewriteRule> otherRules) {
-    return Arrays.asList(this.topTo.isPresent() && this.topFrom.isPresent()
-        ? OverwriteRule.makeOverwrite(this.globalFrom, this.topFrom.get(), this.globalTo,
-            this.toPush)
-        : PushRule.makePush(this.globalFrom, this.globalTo, this.toPush));
+  public List<IRewriteRule> overapproxRewrite(int bound, Set<Integer> emerging) {
+    List<IRewriteRule> list = new ArrayList<>();
+    list.add(this.topFrom.isPresent() && this.topTo.isPresent()
+        ? new PushRuleBoundChecker(this.globalFrom, this.topFrom.get(), this.globalTo,
+            this.toPush, this.topTo.get(), bound)
+        : new PushRuleBoundChecker(this.globalFrom, this.globalTo, this.toPush, bound));
+    return list;
   }
 
   @Override
-  public void makeNewRuleIfPush(int globalFrom, int topFrom, int globalTo, List<IRewriteRule> acc) {
-    acc.add(OverwriteRule.makeOverwrite(globalFrom, topFrom, globalTo, this.topTo.get()));
+  public void addEmergingSymbols(Set<Integer> acc) {
+    if (this.topTo.isPresent()) {
+      acc.add(this.topTo.get());
+    }
   }
   
   @Override
@@ -113,12 +118,45 @@ class PushRule extends ARewriteRule {
     return Objects.hash(this.globalFrom, this.globalTo, this.topFrom, this.topTo, this.toPush);
   }
 
-  @Override
-  public boolean looksLikeThisTarget(Pair<Integer, Stack<Integer>> local,
-      List<IRewriteRule> others, boolean preMet) {
-    return preMet
-        && this.topTo.isPresent() 
-        && !local.getSecond().isEmpty()
-        && local.getSecond().peek().equals(this.topTo.get());
+  /**
+   * A rule that only activates when the stack is at the bound. When it does, it
+   * drops the bottom of the stack.
+   * 
+   * @author Andrew
+   *
+   */
+  private class PushRuleBoundChecker extends PushRule {
+    private final int bound;
+
+    PushRuleBoundChecker(int globalFrom, int topFrom, int globalTo, int toPush, int topTo,
+        int bound) {
+      super(globalFrom, topFrom, globalTo, toPush, topTo);
+      this.bound = bound;
+    }
+
+    PushRuleBoundChecker(int globalFrom, int globalTo, int toPush, int bound) {
+      super(globalFrom, globalTo, toPush);
+      this.bound = bound;
+    }
+
+    @Override
+    public boolean canRewrite(int global, Stack<Integer> local) {
+      return super.canRewrite(global, local) && local.size() <= this.bound;
+    }
+
+    @Override
+    public State rewrite(List<Stack<Integer>> stacks, int machineNum, int delays) {
+      List<Stack<Integer>> nextList = State.cloneList(stacks);
+      Stack<Integer> toRewrite = nextList.get(machineNum);
+      if (this.topTo.isPresent()) {
+        toRewrite.pop();
+        toRewrite.push(this.topTo.get());
+      }
+      toRewrite.push(this.toPush);
+      if (toRewrite.size() == this.bound + 1) {
+        toRewrite.removeElementAt(0);
+      }
+      return new State(this.globalTo, nextList, delays);
+    }
   }
 }

@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RRExplore</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="roundrobinexplore">RoundRobinExplore</h1>
+<p>To use the jar file:</p>
+<ul>
+<li>navigate to the folder with the jar (DUBA)</li>
+<li>type in terminal: “java -jar RRExplore.jar” followed by whatever flags you want to use. You have to provide at least a filepath.</li>
+</ul>
+<p>Available flags:</p>
+<ul>
+<li>“-in”: use to specify filepath, absolute or relative from where the jar is placed.</li>
+<li>“-slice”: use to specify slice size. Defaults to 10.</li>
+<li>“-rounds”: use to specify number of rounds. Defaults to 20.</li>
+<li>“-bound”: use to specify the stack bound to use for the overapproximation. defaults to 2.</li>
+<li>“-delay”: use to specify a delay bound to explore up to. This does not do convergence tests. If this is not included, the program will run the version with interaction/convergence test.</li>
+<li>“-automatic”: use if you don’t want the program to ask you to continue at each k increment.</li>
+</ul>
+<p>Included below are 2 examples of small files; one that works and one that doesn’t.<br>
+The tool might lag every few rounds as it is recalculating further out. I think it is pretty inefficient, sorry about that.<br>
+Example: (Using files as they are in the github)</p>
+<p><img src="https://lh3.googleusercontent.com/osdFpvI0QZecvltJjyp2szNw-ItH6tZLOmD850YhHRLvNAUXcof3Tu6TORGZkUI2C8qR5HOzOzHI" alt="enter image description here"><br>
+<img src="https://lh3.googleusercontent.com/PjZ1dNHcwjCmlkotBRFoboyRhHka3iN-HDFdFfX9xBtA482otMGW4ODap-oWZvKD2iwAX87z_Oze" alt="enter image description here"><img src="https://lh3.googleusercontent.com/pHAZIQyPEdnWkYYyfkGlzp_fnCeq7XiWqZRKLBVglx48Z5Oss7FrEp29cPlacGCOwdwSPCQRqfot" alt="enter image description here"></p>
+</div>
+</body>
+
+</html>

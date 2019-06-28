@@ -3,6 +3,7 @@ package reachability;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -35,12 +36,13 @@ class PopRule extends ARewriteRule {
   }
 
   @Override
-  public List<IRewriteRule> overapproxRewrite(List<IRewriteRule> otherRules) {
+  public List<IRewriteRule> overapproxRewrite(int bound, Set<Integer> emerging) {
     List<IRewriteRule> list = new ArrayList<>();
-    for (IRewriteRule r : otherRules) {
-      r.makeNewRuleIfPush(this.globalFrom, this.topFrom.get(), this.globalTo, list);
-    }
     list.add(this);
+    for (int e : emerging) {
+      list.add(
+          new PopRuleBoundChecker(this.globalFrom, this.topFrom.get(), this.globalTo, e, bound));
+    }
     return list;
   }
   
@@ -66,9 +68,41 @@ class PopRule extends ARewriteRule {
   }
 
   @Override
-  public boolean looksLikeThisTarget(Pair<Integer, Stack<Integer>> local, List<IRewriteRule> others,
-      boolean preMet) {
-    return !preMet && local.getFirst().equals(this.globalTo) && (local.getSecond().isEmpty() || others.stream()
-            .anyMatch(r -> r.looksLikeThisTarget(local, others, true)));
+  public void addGlobalToIfPop(Set<Integer> acc) {
+    acc.add(this.globalTo);
   }
+
+  /**
+   * A rule that only activates when the stack is at the bound. When it does, puts
+   * the given int at the bottom of the stack.
+   * 
+   * @author Andrew
+   *
+   */
+  private class PopRuleBoundChecker extends PopRule {
+    private final int bottomStack;
+    private final int bound;
+
+    PopRuleBoundChecker(int globalFrom, int topFrom, int globalTo, int bottomStack, int bound) {
+      super(globalFrom, topFrom, globalTo);
+      this.bottomStack = bottomStack;
+      this.bound = bound;
+    }
+
+    @Override
+    public boolean canRewrite(int global, Stack<Integer> local) {
+      return super.canRewrite(global, local) && local.size() == this.bound;
+    }
+
+    @Override
+    public State rewrite(List<Stack<Integer>> stacks, int machineNum, int delays) {
+      List<Stack<Integer>> nextStacks = State.cloneList(stacks);
+      Stack<Integer> s = nextStacks.get(machineNum);
+      s.pop();
+      s.add(0, this.bottomStack);
+      return new State(this.globalTo, nextStacks, delays);
+    }
+
+  }
+
 }

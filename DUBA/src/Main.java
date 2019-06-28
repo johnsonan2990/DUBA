@@ -1,5 +1,6 @@
 
 
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,12 +30,14 @@ public class Main {
     int slice = 5;
     int rounds = 20;
     int delay = -1;
+    int stackBoundForOverApprox = 2;
+    boolean cont = true;
     try {
       for (int i = 0; i < args.length; i += 2) {
         switch (args[i]) {
         case "-in":
-          filepath = args[i+1];
-          r = new FileReader(filepath);          
+          filepath = args[i + 1];
+          r = new FileReader(filepath);
           break;
         case "-slice":
           slice = Integer.parseInt(args[i + 1]);
@@ -45,15 +48,26 @@ public class Main {
         case "-delay":
           delay = Integer.parseInt(args[i + 1]);
           break;
+        case "-bound":
+          stackBoundForOverApprox = Integer.parseInt(args[i + 1]);
+          break;
+        case "-automatic":
+          cont = false;
+          break;
         }
       }
     }
     catch (IOException e) {
-      throw new IllegalArgumentException("File not found." + e.getLocalizedMessage());
+      throw new IllegalArgumentException("File not found. " + e.getLocalizedMessage());
+    }
+
+    if (r == null) {
+      throw new IllegalArgumentException("Please input at least \"-in\" followed by a filepath!");
     }
 
     System.out.println("Running " + filepath + " with slice=" + slice + ", rounds=" + rounds
-        + ", and delayBound=" + ((delay == -1) ? "dynamic" : delay));
+        + ", delayBound=" + ((delay == -1) ? "dynamic" : delay) + ", overApproxBound= "
+        + stackBoundForOverApprox);
     Pair<Integer, List<IMachine>> input = IMachineReader.read(r);
     RoundRobinExplore explorer2 = RoundRobinExplore.RRBuilder.build(input.getSecond());
     if (delay != -1) {
@@ -62,15 +76,15 @@ public class Main {
       for (int d = 0; d <= delay; d++) {
         System.out.println("Delay Bound " + d);
         int delayss = d;
-        System.out
-            .println(set.stream()
-                .filter(s -> s.getDelays() == delayss).collect(Collectors.toList()));
+        System.out.println(
+            set.stream().filter(s -> s.getDelays() == delayss).collect(Collectors.toList()));
         System.out.println("-------------------------");
       }
     }
     else {
       explorer2.runWithDelaysInteractive(slice, rounds,
-          setupInit(input.getSecond(), input.getFirst()), new InputStreamReader(System.in));
+          setupInit(input.getSecond(), input.getFirst()), new InputStreamReader(System.in),
+          stackBoundForOverApprox, cont);
     }
   }
 }
