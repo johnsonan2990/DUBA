@@ -87,9 +87,28 @@ public class RoundRobinExplore {
     Set<State> z = this.overapproxReachable(initial, stackBoundForOverApprox).stream()
         .map(s -> s.abstraction().cloneAndSetDelays(0)).collect(Collectors.toSet());
     // System.out.println("Appprox set Z:" + z);
+    Scanner in = new Scanner(r).useDelimiter("");
     Set<State> gIntersectTR = this.intersectGenerator(z);
-    System.out.println("G intersect Z:" + gIntersectTR);
-    Scanner in = new Scanner(r);
+    System.out.println("Found G intersect Z:");
+    if (gIntersectTR.size() < 20) {
+      System.out.println(gIntersectTR);
+    }
+    else if (cont) {
+      System.out.println("Print it? (y to print)");
+      while (in.hasNextLine()) {
+        String next = in.nextLine();
+        if (next.equals("y") || next.equals("Y")) {
+          System.out.println(gIntersectTR);
+          break;
+        }
+        else {
+          break;
+        }
+      }
+    }
+    else {
+      System.out.println("Too big to print.");
+    }
     int delay = -1;
     List<State> reachedThisBound;
     int plateauLength = 0;
@@ -105,11 +124,30 @@ public class RoundRobinExplore {
       }
       reachedThisBound = abstractCleanAndSort(known).stream().filter(s -> s.getDelays() == d)
           .collect(Collectors.toList());
-      System.out.println(reachedThisBound);
+
+      if (reachedThisBound.size() < 20) {
+        System.out.println(": " + reachedThisBound);
+      }
+      else if (cont) {
+        System.out.println("Print new states? (y to print)");
+        while (in.hasNextLine()) {
+          String next = in.nextLine();
+          if (next.equals("y") || next.equals("Y")) {
+            System.out.println(reachedThisBound);
+            break;
+          }
+          else {
+            break;
+          }
+        }
+      }
+      else {
+        System.out.println("Too big to print");
+      }
 
       if (reachedThisBound.isEmpty()) {
         plateauLength++;
-        if (plateauLength % this.machines.size() == 0 && plateauLength > 0) {
+        if (plateauLength == this.machines.size() && plateauLength > 0) {
           System.out.println(
               "Plateau has reached length of " + plateauLength + ". Testing convergence...");
           Set<State> thisAll0Delay = known.stream().filter(s -> s.getDelays() <= d)
@@ -122,8 +160,23 @@ public class RoundRobinExplore {
           }
           else {
             System.out.println("Not quite there! Missed " + missed.size() + " generators");
-            if (missed.size() < 20) {
-              System.out.println(": " + missed);
+            if (cont) {
+              if (missed.size() < 20) {
+                System.out.println(": " + missed);
+              }
+              else {
+                System.out.println("Print them? (y to print)");
+                while (in.hasNextLine()) {
+                  String next = in.nextLine();
+                  if (next.equals("y") || next.equals("Y")) {
+                    System.out.println(missed);
+                    break;
+                  }
+                  else {
+                    break;
+                  }
+                }
+              }
             }
           }
         }
@@ -132,15 +185,15 @@ public class RoundRobinExplore {
         plateauLength = 0;
       }
       if (cont) {
-        System.out.println("Continue? (y/n)");
-        while (in.hasNext()) {
-          String next = in.next();
+        System.out.println("Continue? ('n' to stop)");
+        while (in.hasNextLine()) {
+          String next = in.nextLine();
           if (next.equals("n") || next.equals("N")) {
             System.out.println("Quitting.");
             in.close();
             return;
           }
-          if (next.equals("y") || next.equals("Y")) {
+          else {
             break;
           }
         }
