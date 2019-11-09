@@ -30,7 +30,7 @@ public class Main {
     int slice = 5;
     int rounds = 20;
     int delay = -1;
-    int stackBoundForOverApprox = 2;
+    int stackBoundForOverApprox = 1;
     boolean cont = true;
     try {
       for (int i = 0; i < args.length; i += 2) {

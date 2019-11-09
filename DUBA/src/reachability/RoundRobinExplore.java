@@ -40,10 +40,15 @@ public class RoundRobinExplore {
     this.reached.addAll(initial);
     Set<State> currFrontier = new HashSet<>();
     currFrontier.addAll(initial);
+    Set<State> nextMachFrontier = new HashSet<>();
     for (int round = 0; round < rounds; round++) {
       for (int machine = 0; machine < this.machines.size(); machine++) {
+        currFrontier.clear();
+        currFrontier.addAll(nextMachFrontier);
+        nextMachFrontier.clear();
         for (int steps = 0; steps < timeSlice; steps++) {
           currFrontier = this.step(machine, currFrontier);
+          nextMachFrontier.addAll(currFrontier);
         }
       }
     }
@@ -119,7 +124,7 @@ public class RoundRobinExplore {
       int d = delay;
       System.out.println("New abstract states with delay " + delay + ":");
       if (delay > delayB) {
-        delayB += 4;
+        delayB += this.machines.size();
         known = this.runWithDelays(timeSlice, rounds, initial, delayB);
       }
       reachedThisBound = abstractCleanAndSort(known).stream().filter(s -> s.getDelays() == d)
