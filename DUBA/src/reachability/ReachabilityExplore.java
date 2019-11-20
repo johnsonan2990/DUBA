@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import State.IState;
+
 /**
  * An explorer to find reachable states given a deterministic scheduler.
  * 
@@ -14,9 +16,9 @@ import java.util.Set;
  */
 public class ReachabilityExplore {
   // private final Set<State> nextExplore;
-  private final Set<State> reached;
+  private final Set<IState> reached;
   private final List<IMachine> machines;
-  private final Map<IMachine, Set<State>> reachedLast;
+  private final Map<IMachine, Set<IState>> reachedLast;
 
   /**
    * Create an explorer.
@@ -25,7 +27,7 @@ public class ReachabilityExplore {
    * @param machines The list of machines.
    * @param sched    The scheduler to use.
    */
-  ReachabilityExplore(State initial, List<IMachine> machines) {
+  ReachabilityExplore(IState initial, List<IMachine> machines) {
 //    this.nextExplore = new HashSet<>();
 //    this.nextExplore.add(initial);
     this.reached = new HashSet<>();
@@ -44,7 +46,7 @@ public class ReachabilityExplore {
    * @param rounds The number of rounds
    * @return The set of states reachable in that many rounds
    */
-  public Set<State> run(int rounds) {
+  public Set<IState> run(int rounds) {
     for (int round = 0; round < rounds; round += 1) {
       for (int machine = 0; machine < this.machines.size(); machine += 1) {
         this.runProcedure(machine);
@@ -59,7 +61,7 @@ public class ReachabilityExplore {
    * 
    * @return The set of reachable states
    */
-  public Set<State> run() {
+  public Set<IState> run() {
     while (!this.complete()) {
       for (int machine = 0; machine < this.machines.size(); machine += 1) {
         this.runProcedure(machine);
@@ -76,14 +78,14 @@ public class ReachabilityExplore {
    * @param toRun The machine to be run.
    */
   private void runProcedure(int machineNum) {
-    Set<State> unexplored = setDiff(this.reached,
+    Set<IState> unexplored = setDiff(this.reached,
         this.reachedLast.get(this.machines.get(machineNum)));
 
     while (!unexplored.isEmpty()) {
-      Set<State> nextUnexplored = new HashSet<>();
-      for (State s : unexplored) {
-        Set<State> successors = this.machines.get(machineNum).getSuccessors(s, machineNum);
-        for (State successor : successors) {
+      Set<IState> nextUnexplored = new HashSet<>();
+      for (IState s : unexplored) {
+        Set<IState> successors = this.machines.get(machineNum).getSuccessors(s, machineNum);
+        for (IState successor : successors) {
           if (!reached.contains(successor)) {
             reached.add(successor);
             nextUnexplored.add(successor);

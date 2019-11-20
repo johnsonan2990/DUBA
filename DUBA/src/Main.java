@@ -6,19 +6,20 @@ import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import State.IState;
+import State.StateWrapper;
 import reachability.IMachine;
 import reachability.IMachineReader;
 import reachability.Pair;
 import reachability.RoundRobinExplore;
-import reachability.State;
 
 public class Main {
-  private static State setupInit(List<IMachine> machines, int global) {
+  private static IState setupInit(List<IMachine> machines, int global) {
     List<Stack<Integer>> initStacks = new ArrayList<>();
     for (IMachine m : machines) {
       initStacks.add(m.initStack());
     }
-    return new State(global, initStacks, 0);
+    return new StateWrapper(global, initStacks, 0);
   }
 
   public static void main(String[] args) {
@@ -68,7 +69,7 @@ public class Main {
     Pair<Integer, List<IMachine>> input = IMachineReader.read(r);
     RoundRobinExplore explorer2 = RoundRobinExplore.RRBuilder.build(input.getSecond());
     if (delay != -1) {
-      List<State> set = RoundRobinExplore.abstractCleanAndSort(explorer2.runWithDelays(slice,
+      List<IState> set = RoundRobinExplore.abstractCleanAndSort(explorer2.runWithDelays(slice,
           rounds, setupInit(input.getSecond(), input.getFirst()), delay));
       for (int d = 0; d <= delay; d++) {
         System.out.println("Delay Bound " + d);

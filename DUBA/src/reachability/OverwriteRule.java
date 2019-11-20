@@ -7,6 +7,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 
+import State.IState;
+import State.StateWrapper;
+
 /**
  * A rule to overwrite the global state and the top of the local stack.
  * 
@@ -40,15 +43,15 @@ public class OverwriteRule extends ARewriteRule {
   }
 
   @Override
-  public State rewrite(List<Stack<Integer>> stacks, int machineNum, int delays) {
+  public IState rewrite(List<Stack<Integer>> stacks, int machineNum, int delays) {
     // Need to copy states to avoid mutating them.
-    List<Stack<Integer>> nextList = State.cloneList(stacks);
+    List<Stack<Integer>> nextList = StateWrapper.cloneList(stacks);
     Stack<Integer> toRewrite = nextList.get(machineNum);
     if (this.topTo.isPresent()) {
       toRewrite.pop();
       toRewrite.push(this.topTo.get());
     }
-    return new State(this.globalTo, nextList, delays);
+    return new StateWrapper(this.globalTo, nextList, delays);
   }
 
   @Override

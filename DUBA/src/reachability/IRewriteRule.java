@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import State.IState;
+
 public interface IRewriteRule {
   /**
    * Can this rule rewrite the given global and local state?
@@ -23,7 +25,7 @@ public interface IRewriteRule {
    * @param delays  The number of delays the state has taken
    * @return The next state after this rule is applied
    */
-  State rewrite(List<Stack<Integer>> stacks, int machineNum, int delays);
+  IState rewrite(List<Stack<Integer>> stacks, int machineNum, int delays);
 
   /**
    * Return the list of rules that this rule will turn into when to statically

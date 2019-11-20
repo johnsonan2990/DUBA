@@ -6,6 +6,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 
+import State.IState;
+import State.StateWrapper;
+
 /**
  * A rule to overwrite the global state and pop the local stack.
  * 
@@ -29,10 +32,10 @@ class PopRule extends ARewriteRule {
   }
 
   @Override
-  public State rewrite(List<Stack<Integer>> stacks, int machineNum, int delays) {
-    List<Stack<Integer>> nextStacks = State.cloneList(stacks);
+  public IState rewrite(List<Stack<Integer>> stacks, int machineNum, int delays) {
+    List<Stack<Integer>> nextStacks = StateWrapper.cloneList(stacks);
     nextStacks.get(machineNum).pop();
-    return new State(this.globalTo, nextStacks, delays);
+    return new StateWrapper(this.globalTo, nextStacks, delays);
   }
 
   @Override
@@ -95,12 +98,12 @@ class PopRule extends ARewriteRule {
     }
 
     @Override
-    public State rewrite(List<Stack<Integer>> stacks, int machineNum, int delays) {
-      List<Stack<Integer>> nextStacks = State.cloneList(stacks);
+    public IState rewrite(List<Stack<Integer>> stacks, int machineNum, int delays) {
+      List<Stack<Integer>> nextStacks = StateWrapper.cloneList(stacks);
       Stack<Integer> s = nextStacks.get(machineNum);
       s.pop();
       s.add(0, this.bottomStack);
-      return new State(this.globalTo, nextStacks, delays);
+      return new StateWrapper(this.globalTo, nextStacks, delays);
     }
 
   }

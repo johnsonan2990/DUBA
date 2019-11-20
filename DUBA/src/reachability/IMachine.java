@@ -3,6 +3,8 @@ package reachability;
 import java.util.Set;
 import java.util.Stack;
 
+import State.IState;
+
 /**
  * A Machine (concurrent pushdown system) in a reachability explorer.
  * 
@@ -19,7 +21,7 @@ public interface IMachine {
    * @return The set of all successor states to the given one using this machine's
    *         rules
    */
-  Set<State> getSuccessors(State state, int machineNum);
+  Set<IState> getSuccessors(IState state, int machineNum);
 
   /**
    * The initial stack for this machine
@@ -45,6 +47,6 @@ public interface IMachine {
    * @return whether or not the given state looks like the target of a pop action
    *         for this machine
    */
-  boolean isGenerator(State s, int machIdx);
+  boolean isGenerator(IState s, int machIdx);
 
 }

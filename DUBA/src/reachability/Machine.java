@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import State.IState;
+
 class Machine implements IMachine {
   private final List<IRewriteRule> rules;
   private final int localInit;
@@ -16,7 +18,7 @@ class Machine implements IMachine {
   }
 
   @Override
-  public Set<State> getSuccessors(State state, int machineNum) {
+  public Set<IState> getSuccessors(IState state, int machineNum) {
     return state.successors(machineNum, this.rules);
   }
 
@@ -39,7 +41,7 @@ class Machine implements IMachine {
   }
 
   @Override
-  public boolean isGenerator(State s, int machIdx) {
+  public boolean isGenerator(IState s, int machIdx) {
     Pair<Integer, Stack<Integer>> state = s.getLocalState(machIdx);
     Set<Integer> popGlobals = new HashSet<>();
     for (IRewriteRule r : this.rules) {

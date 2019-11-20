@@ -7,9 +7,11 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import State.IState;
+
 public class RoundRobinExplore {
 
-  private final Set<State> reached;
+  private final Set<IState> reached;
   private final List<IMachine> machines;
   private final IScheduler sched;
 
@@ -29,18 +31,18 @@ public class RoundRobinExplore {
     }
   }
 
-  public Set<State> run(int timeSlice, int rounds, State initial) {
-    Set<State> init = new HashSet<>();
+  public Set<IState> run(int timeSlice, int rounds, IState initial) {
+    Set<IState> init = new HashSet<>();
     init.add(initial);
     return this.run(timeSlice, rounds, init);
   }
 
-  public Set<State> run(int timeSlice, int rounds, Set<State> initial) {
+  public Set<IState> run(int timeSlice, int rounds, Set<IState> initial) {
     this.reached.clear();
     this.reached.addAll(initial);
-    Set<State> currFrontier = new HashSet<>();
+    Set<IState> currFrontier = new HashSet<>();
     currFrontier.addAll(initial);
-    Set<State> nextMachFrontier = new HashSet<>();
+    Set<IState> nextMachFrontier = new HashSet<>();
     for (int round = 0; round < rounds; round++) {
       for (int machine = 0; machine < this.machines.size(); machine++) {
         currFrontier.clear();
@@ -52,15 +54,15 @@ public class RoundRobinExplore {
         }
       }
     }
-    Set<State> toGive = new HashSet<>();
+    Set<IState> toGive = new HashSet<>();
     toGive.addAll(this.reached);
     return toGive;
   }
 
-  public Set<State> runWithDelays(int timeSlice, int rounds, State initial, int delayBound) {
+  public Set<IState> runWithDelays(int timeSlice, int rounds, IState initial, int delayBound) {
     this.reached.add(initial);
-    Set<State> frontier = new HashSet<>();
-    Set<State> nextMachineFrontier = new HashSet<>();
+    Set<IState> frontier = new HashSet<>();
+    Set<IState> nextMachineFrontier = new HashSet<>();
     nextMachineFrontier.add(initial);
     for (int round = 0; round < rounds; round++) {
       for (int machine = 0; machine < this.machines.size(); machine++) {
@@ -76,7 +78,7 @@ public class RoundRobinExplore {
     }
     return this.reached
         .stream()
-        .sorted(Comparator.comparing(s -> s.timeStamp))
+        .sorted(Comparator.comparing(s -> s.getTimestamp()))
         .filter(s -> {
           boolean ans = true;
           for (int delays = 0; delays < s.getDelays(); delays++) {
@@ -87,13 +89,13 @@ public class RoundRobinExplore {
         .collect(Collectors.toSet());
   }
 
-  public void runWithDelaysInteractive(int timeSlice, int rounds, State initial, Readable r,
+  public void runWithDelaysInteractive(int timeSlice, int rounds, IState initial, Readable r,
       int stackBoundForOverApprox, boolean cont) {
-    Set<State> z = this.overapproxReachable(initial, stackBoundForOverApprox).stream()
+    Set<IState> z = this.overapproxReachable(initial, stackBoundForOverApprox).stream()
         .map(s -> s.abstraction().cloneAndSetDelays(0)).collect(Collectors.toSet());
     // System.out.println("Appprox set Z:" + z);
     Scanner in = new Scanner(r).useDelimiter("");
-    Set<State> gIntersectTR = this.intersectGenerator(z);
+    Set<IState> gIntersectTR = this.intersectGenerator(z);
     System.out.println("Found G intersect Z:");
     if (gIntersectTR.size() < 20) {
       System.out.println(gIntersectTR);
@@ -115,16 +117,16 @@ public class RoundRobinExplore {
       System.out.println("Too big to print.");
     }
     int delay = -1;
-    List<State> reachedThisBound;
+    List<IState> reachedThisBound;
     int plateauLength = 0;
     int delayB = 4;
-    Set<State> known = this.runWithDelays(timeSlice, rounds, initial, delayB);
+    Set<IState> known = this.runWithDelays(timeSlice, rounds, initial, delayB);
     while (true) {
       delay++;
       int d = delay;
       System.out.println("New abstract states with delay " + delay + ":");
       if (delay > delayB) {
-        delayB += this.machines.size();
+        delayB += (this.machines.size() - plateauLength);
         known = this.runWithDelays(timeSlice, rounds, initial, delayB);
       }
       reachedThisBound = abstractCleanAndSort(known).stream().filter(s -> s.getDelays() == d)
@@ -155,9 +157,9 @@ public class RoundRobinExplore {
         if (plateauLength == this.machines.size() && plateauLength > 0) {
           System.out.println(
               "Plateau has reached length of " + plateauLength + ". Testing convergence...");
-          Set<State> thisAll0Delay = known.stream().filter(s -> s.getDelays() <= d)
+          Set<IState> thisAll0Delay = known.stream().filter(s -> s.getDelays() <= d)
               .map(s -> s.abstraction().cloneAndSetDelays(0)).collect(Collectors.toSet());
-          Set<State> missed = ReachabilityExplore.setDiff(gIntersectTR, thisAll0Delay);
+          Set<IState> missed = ReachabilityExplore.setDiff(gIntersectTR, thisAll0Delay);
           if (missed.isEmpty()) {
             System.out.println("Found all reachable states!");
             in.close();
@@ -206,10 +208,10 @@ public class RoundRobinExplore {
     }
   }
 
-  private Set<State> step(int machineNum, Set<State> currFrontier) {
-    Set<State> nextFrontier = new HashSet<>();
-    for (State s : currFrontier) {
-      Set<State> successors = this.machines.get(machineNum).getSuccessors(s, machineNum);
+  private Set<IState> step(int machineNum, Set<IState> currFrontier) {
+    Set<IState> nextFrontier = new HashSet<>();
+    for (IState s : currFrontier) {
+      Set<IState> successors = this.machines.get(machineNum).getSuccessors(s, machineNum);
       this.reached.addAll(successors);
       if (successors.isEmpty()) {
         nextFrontier.add(s);
@@ -221,15 +223,15 @@ public class RoundRobinExplore {
     return nextFrontier;
   }
 
-  private Set<State> stepDelay(int machineNum, Set<State> currFrontier,
-      Set<State> nextMachineFrontier, int delayBound) {
-    Set<State> nextFrontier = new HashSet<>();
-    for (State s : currFrontier) {
+  private Set<IState> stepDelay(int machineNum, Set<IState> currFrontier,
+      Set<IState> nextMachineFrontier, int delayBound) {
+    Set<IState> nextFrontier = new HashSet<>();
+    for (IState s : currFrontier) {
       if (s.getDelays() < delayBound) {
-        State delayed = s.cloneAndSetDelays();
+        IState delayed = s.cloneAndSetDelays();
         nextMachineFrontier.add(delayed);
       }
-      Set<State> successors = this.machines.get(machineNum).getSuccessors(s, machineNum);
+      Set<IState> successors = this.machines.get(machineNum).getSuccessors(s, machineNum);
       this.reached.addAll(successors);
       if (successors.isEmpty()) {
         nextMachineFrontier.add(s);
@@ -241,16 +243,16 @@ public class RoundRobinExplore {
     return nextFrontier;
   }
 
-  private Set<State> overapproxReachable(State initial, int bound) {
+  private Set<IState> overapproxReachable(IState initial, int bound) {
     List<IMachine> simplerMachines = this.machines.stream().map(m -> m.simplify(bound))
         .collect(Collectors.toList());
     return new ReachabilityExplore(initial, simplerMachines).run().stream()
         .map(s -> s.abstraction()).collect(Collectors.toSet());
   }
 
-  private Set<State> intersectGenerator(Set<State> reachable) {
-    Set<State> ans = new HashSet<>();
-    for (State s : reachable) {
+  private Set<IState> intersectGenerator(Set<IState> reachable) {
+    Set<IState> ans = new HashSet<>();
+    for (IState s : reachable) {
       boolean check = false;
       for (int mach = 0; mach < this.machines.size(); mach++) {
         check = check || this.machines.get(mach).isGenerator(s, mach);
@@ -262,8 +264,8 @@ public class RoundRobinExplore {
     return ans;
   }
 
-  public static List<State> abstractCleanAndSort(Set<State> full) {
-    Set<State> abstractedSetNotCleaned = full.stream().map(s -> s.abstraction())
+  public static List<IState> abstractCleanAndSort(Set<IState> full) {
+    Set<IState> abstractedSetNotCleaned = full.stream().map(s -> s.abstraction())
         .collect(Collectors.toSet());
     return abstractedSetNotCleaned.stream().filter(s -> {
       boolean ans = true;
@@ -271,6 +273,6 @@ public class RoundRobinExplore {
         ans = ans && !abstractedSetNotCleaned.contains(s.cloneAndSetDelays(delays));
       }
       return ans;
-    }).sorted(Comparator.comparing(s -> s.timeStamp)).collect(Collectors.toList());
+    }).sorted(Comparator.comparing(s -> s.getTimestamp())).collect(Collectors.toList());
   }
 }
