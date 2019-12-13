@@ -1,5 +1,4 @@
 package State;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Stack;
@@ -13,23 +12,8 @@ class State {
     this.stacks = stacks;
   }
 
-
-
-  public State abstraction() {
-    List<Stack<Integer>> list = new ArrayList<>();
-    for (Stack<Integer> s : this.stacks) {
-      Stack<Integer> top = new Stack<>();
-      if (!s.isEmpty()) {
-        top.push(s.peek());
-      }
-      list.add(top);
-
-      }
-    // return new State(this.global, list, this.delaysTaken, this.timeStamp);
-    return null;
-    }
-
   @Override
+
   public boolean equals(Object other) {
     if (this == other) {
       return true;

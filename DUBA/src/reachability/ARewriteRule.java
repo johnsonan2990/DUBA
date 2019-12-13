@@ -45,8 +45,8 @@ abstract class ARewriteRule implements IRewriteRule {
       builders.add(
           new Pair<>("\\(?\\s?(\\d+),?\\s[e-]\\s?\\)?\\s?->\\s?\\(?\\s?(\\d+),?\\s(\\d+)\\s?\\)?",
               a -> PushRule.makePush(a)));
-      builders.add(
-          new Pair<>("\\(?\\s?(\\d+),?\\s[e-]\\s?\\)?\\s?->\\s?\\(?\\s?(\\d+),?\\s[e-]\\s?\\)?",
+      builders
+          .add(new Pair<>("\\(?\\s?(\\d+),?\\s\\s?\\)?\\s?->\\s?\\(?\\s?(\\d+),?\\s[e-]\\s?\\)?",
               a -> OverwriteRule.makeOverwrite(a)));
       builders.add(new Pair<>(
           "\\(?\\s?(\\d+),?\\s(\\d+)\\s?\\)?\\s?->\\s?\\(?\\s?(\\d+),?\\s(\\d+)\\s?\\)?",

@@ -24,7 +24,9 @@ public class Main {
 
   public static void main(String[] args) {
     Readable r = null;
+    Readable r2 = null;
     String filepath = "";
+    String filepathConcrete = "";
     int slice = 5;
     int rounds = 20;
     int delay = -1;
@@ -49,6 +51,10 @@ public class Main {
         case "-bound":
           stackBoundForOverApprox = Integer.parseInt(args[i + 1]);
           break;
+        case "-concrete":
+          filepathConcrete = args[i+1];
+          r2 = new FileReader(filepathConcrete);
+          break;
         case "-automatic":
           cont = false;
           break;
@@ -67,7 +73,16 @@ public class Main {
         + ", delayBound=" + ((delay == -1) ? "dynamic" : delay) + ", overApproxBound= "
         + stackBoundForOverApprox);
     Pair<Integer, List<IMachine>> input = IMachineReader.read(r);
-    RoundRobinExplore explorer2 = RoundRobinExplore.RRBuilder.build(input.getSecond());
+    Pair<Integer, List<IMachine>> inputconcrete = null;
+    RoundRobinExplore explorer2;
+    if (r2 != null) {
+      inputconcrete = IMachineReader.read(r2);
+      explorer2 = RoundRobinExplore.RRBuilder.build(inputconcrete.getSecond(), input.getSecond(),
+          hardCodedAbstractor);
+    }
+    else {
+      explorer2 = RoundRobinExplore.RRBuilder.build(input.getSecond());
+    }
     if (delay != -1) {
       List<IState> set = RoundRobinExplore.abstractCleanAndSort(explorer2.runWithDelays(slice,
           rounds, setupInit(input.getSecond(), input.getFirst()), delay));

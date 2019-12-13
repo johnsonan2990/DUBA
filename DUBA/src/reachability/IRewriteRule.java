@@ -25,7 +25,7 @@ public interface IRewriteRule {
    * @param delays  The number of delays the state has taken
    * @return The next state after this rule is applied
    */
-  IState rewrite(List<Stack<Integer>> stacks, int machineNum, int delays);
+  IState rewrite(int global, List<Stack<Integer>> stacks, int machineNum, int delays);
 
   /**
    * Return the list of rules that this rule will turn into when to statically

@@ -41,7 +41,7 @@ public class StateWrapper implements IState {
     Set<IState> ans = new HashSet<>();
     for (IRewriteRule r : toUse) {
       if (r.canRewrite(this.state.global, this.state.stacks.get(machineNum))) {
-        ans.add(r.rewrite(this.state.stacks, machineNum, this.delaysTaken));
+        ans.add(r.rewrite(this.state.global, this.state.stacks, machineNum, this.delaysTaken));
       }
     }
     return ans;

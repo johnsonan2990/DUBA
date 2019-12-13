@@ -12,15 +12,35 @@ import State.IState;
 public class RoundRobinExplore {
 
   private final Set<IState> reached;
-  private final List<IMachine> machines;
+  private final List<IMachine> machines1;
+  private final List<IMachine> machines2;
   private final IScheduler sched;
+  private final Abstractor abstractor;
 
   private RoundRobinExplore(List<IMachine> machines, IScheduler sched) {
     this.reached = new HashSet<>();
-    this.machines = machines;
+    this.machines1 = machines;
+    this.machines2 = null;
     this.sched = sched;
+    this.abstractor = null;
+  }
+  
+  private RoundRobinExplore(List<IMachine> machines1, List<IMachine> machines2, IScheduler sched,
+      Abstractor abstractor) {
+    this.reached = new HashSet<>();
+    this.machines1 = machines1;
+    this.machines2 = machines2;
+    this.sched = sched;
+    this.abstractor = abstractor;
   }
 
+  /**
+   * use to build RRExplorers. If passing in 2 sets of machines, pass in the
+   * concrete first!
+   * 
+   * @author Andrew
+   *
+   */
   public static class RRBuilder {
     public static RoundRobinExplore build(List<IMachine> machines, IScheduler sched) {
       return new RoundRobinExplore(machines, sched);
@@ -28,6 +48,11 @@ public class RoundRobinExplore {
 
     public static RoundRobinExplore build(List<IMachine> machines) {
       return build(machines, new RoundRobin());
+    }
+
+    public static RoundRobinExplore build(List<IMachine> machines1, List<IMachine> machines2,
+        Abstractor abstractor) {
+      return new RoundRobinExplore(machines1, machines2, new RoundRobin(), abstractor);
     }
   }
 
@@ -44,7 +69,7 @@ public class RoundRobinExplore {
     currFrontier.addAll(initial);
     Set<IState> nextMachFrontier = new HashSet<>();
     for (int round = 0; round < rounds; round++) {
-      for (int machine = 0; machine < this.machines.size(); machine++) {
+      for (int machine = 0; machine < this.machines1.size(); machine++) {
         currFrontier.clear();
         currFrontier.addAll(nextMachFrontier);
         nextMachFrontier.clear();
@@ -65,7 +90,7 @@ public class RoundRobinExplore {
     Set<IState> nextMachineFrontier = new HashSet<>();
     nextMachineFrontier.add(initial);
     for (int round = 0; round < rounds; round++) {
-      for (int machine = 0; machine < this.machines.size(); machine++) {
+      for (int machine = 0; machine < this.machines1.size(); machine++) {
         frontier.addAll(nextMachineFrontier);
         nextMachineFrontier.clear();
         for (int step = 0; step < timeSlice; step++) {
@@ -126,7 +151,7 @@ public class RoundRobinExplore {
       int d = delay;
       System.out.println("New abstract states with delay " + delay + ":");
       if (delay > delayB) {
-        delayB += (this.machines.size() - plateauLength);
+        delayB += (this.machines1.size() - plateauLength);
         known = this.runWithDelays(timeSlice, rounds, initial, delayB);
       }
       reachedThisBound = abstractCleanAndSort(known).stream().filter(s -> s.getDelays() == d)
@@ -154,7 +179,7 @@ public class RoundRobinExplore {
 
       if (reachedThisBound.isEmpty()) {
         plateauLength++;
-        if (plateauLength == this.machines.size() && plateauLength > 0) {
+        if (plateauLength == this.machines1.size() && plateauLength > 0) {
           System.out.println(
               "Plateau has reached length of " + plateauLength + ". Testing convergence...");
           Set<IState> thisAll0Delay = known.stream().filter(s -> s.getDelays() <= d)
@@ -211,7 +236,7 @@ public class RoundRobinExplore {
   private Set<IState> step(int machineNum, Set<IState> currFrontier) {
     Set<IState> nextFrontier = new HashSet<>();
     for (IState s : currFrontier) {
-      Set<IState> successors = this.machines.get(machineNum).getSuccessors(s, machineNum);
+      Set<IState> successors = this.machines1.get(machineNum).getSuccessors(s, machineNum);
       this.reached.addAll(successors);
       if (successors.isEmpty()) {
         nextFrontier.add(s);
@@ -231,7 +256,7 @@ public class RoundRobinExplore {
         IState delayed = s.cloneAndSetDelays();
         nextMachineFrontier.add(delayed);
       }
-      Set<IState> successors = this.machines.get(machineNum).getSuccessors(s, machineNum);
+      Set<IState> successors = this.machines1.get(machineNum).getSuccessors(s, machineNum);
       this.reached.addAll(successors);
       if (successors.isEmpty()) {
         nextMachineFrontier.add(s);
@@ -244,18 +269,20 @@ public class RoundRobinExplore {
   }
 
   private Set<IState> overapproxReachable(IState initial, int bound) {
-    List<IMachine> simplerMachines = this.machines.stream().map(m -> m.simplify(bound))
+    List<IMachine> toUse = this.machines2 == null ? this.machines1 : this.machines2;
+    List<IMachine> simplerMachines = toUse.stream().map(m -> m.simplify(bound))
         .collect(Collectors.toList());
     return new ReachabilityExplore(initial, simplerMachines).run().stream()
         .map(s -> s.abstraction()).collect(Collectors.toSet());
   }
 
   private Set<IState> intersectGenerator(Set<IState> reachable) {
+    List<IMachine> toUse = this.machines2 == null ? this.machines1 : this.machines2;
     Set<IState> ans = new HashSet<>();
     for (IState s : reachable) {
       boolean check = false;
-      for (int mach = 0; mach < this.machines.size(); mach++) {
-        check = check || this.machines.get(mach).isGenerator(s, mach);
+      for (int mach = 0; mach < toUse.size(); mach++) {
+        check = check || toUse.get(mach).isGenerator(s, mach);
       }
       if (check) {
         ans.add(s);

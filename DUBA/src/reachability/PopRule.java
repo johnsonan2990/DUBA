@@ -32,7 +32,7 @@ class PopRule extends ARewriteRule {
   }
 
   @Override
-  public IState rewrite(List<Stack<Integer>> stacks, int machineNum, int delays) {
+  public IState rewrite(int global, List<Stack<Integer>> stacks, int machineNum, int delays) {
     List<Stack<Integer>> nextStacks = StateWrapper.cloneList(stacks);
     nextStacks.get(machineNum).pop();
     return new StateWrapper(this.globalTo, nextStacks, delays);
@@ -98,7 +98,7 @@ class PopRule extends ARewriteRule {
     }
 
     @Override
-    public IState rewrite(List<Stack<Integer>> stacks, int machineNum, int delays) {
+    public IState rewrite(int global, List<Stack<Integer>> stacks, int machineNum, int delays) {
       List<Stack<Integer>> nextStacks = StateWrapper.cloneList(stacks);
       Stack<Integer> s = nextStacks.get(machineNum);
       s.pop();

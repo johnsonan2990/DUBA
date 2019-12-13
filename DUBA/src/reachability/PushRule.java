@@ -69,7 +69,7 @@ class PushRule extends ARewriteRule {
   }
 
   @Override
-  public IState rewrite(List<Stack<Integer>> stacks, int machineNum, int delays) {
+  public IState rewrite(int global, List<Stack<Integer>> stacks, int machineNum, int delays) {
     // Need to copy states to avoid mutating them.
     List<Stack<Integer>> nextList = StateWrapper.cloneList(stacks);
     Stack<Integer> toRewrite = nextList.get(machineNum);
@@ -148,7 +148,7 @@ class PushRule extends ARewriteRule {
     }
 
     @Override
-    public IState rewrite(List<Stack<Integer>> stacks, int machineNum, int delays) {
+    public IState rewrite(int global, List<Stack<Integer>> stacks, int machineNum, int delays) {
       List<Stack<Integer>> nextList = StateWrapper.cloneList(stacks);
       Stack<Integer> toRewrite = nextList.get(machineNum);
       if (this.topTo.isPresent()) {
